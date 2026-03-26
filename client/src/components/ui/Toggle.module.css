@@ -1,0 +1,40 @@
+.wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+}
+
+.track {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--border-light);
+  position: relative;
+  transition: background 0.2s;
+}
+
+.trackChecked {
+  background: var(--accent);
+}
+
+.thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-primary);
+  transition: transform 0.2s;
+}
+
+.thumbChecked {
+  transform: translateX(16px);
+}
+
+.label {
+  font-size: 13px;
+  color: var(--text-secondary);
+}

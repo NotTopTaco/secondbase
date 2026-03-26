@@ -1,0 +1,33 @@
+.container {
+  display: inline-flex;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.option {
+  padding: var(--space-xs) var(--space-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  border-right: 1px solid var(--border);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.option:last-child {
+  border-right: none;
+}
+
+.option:hover:not(.active) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.active {
+  background: var(--accent);
+  color: #fff;
+}

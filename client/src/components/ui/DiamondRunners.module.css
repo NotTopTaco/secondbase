@@ -1,0 +1,39 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.diamond {
+  flex-shrink: 0;
+}
+
+.base {
+  fill: none;
+  stroke: var(--border-light);
+  stroke-width: 1.5;
+}
+
+.baseOccupied {
+  fill: var(--warning);
+  stroke: var(--warning);
+}
+
+.outs {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.outDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-light);
+  background: none;
+}
+
+.outActive {
+  background: var(--warning);
+  border-color: var(--warning);
+}

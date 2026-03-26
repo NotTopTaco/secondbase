@@ -1,0 +1,91 @@
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.card:hover {
+  border-color: var(--border-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.braves {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.15);
+}
+
+.braves:hover {
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.25);
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.teams {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.teamRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 15px;
+}
+
+.teamName {
+  color: var(--text-primary);
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.score {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 24px;
+  text-align: right;
+}
+
+.record {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: var(--space-xs);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.venue {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.at {
+  color: var(--text-muted);
+  font-size: 11px;
+  padding: 0 var(--space-xs);
+}

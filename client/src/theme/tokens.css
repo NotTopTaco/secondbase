@@ -1,0 +1,57 @@
+:root {
+  /* Backgrounds */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #141420;
+  --bg-tertiary: #1e1e30;
+
+  /* Text */
+  --text-primary: #e8e8f0;
+  --text-secondary: #9898a8;
+  --text-muted: #606070;
+
+  /* Accent */
+  --accent: #4a9eff;
+  --accent-hover: #6ab4ff;
+
+  /* Semantic */
+  --danger: #e74c3c;
+  --success: #2ecc71;
+  --warning: #f39c12;
+
+  /* Borders */
+  --border: #2a2a3a;
+  --border-light: #3a3a4a;
+
+  /* Pitch type colors */
+  --pitch-FF: #e74c3c;
+  --pitch-SI: #e91e90;
+  --pitch-FC: #f39c12;
+  --pitch-SL: #3498db;
+  --pitch-CU: #f1c40f;
+  --pitch-CH: #2ecc71;
+  --pitch-FS: #9b59b6;
+
+  /* Hot zone scale */
+  --zone-cold: #2166ac;
+  --zone-neutral: #f7f7f7;
+  --zone-hot: #b2182b;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Fonts */
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Panel sizing */
+  --panel-min: 450px;
+}

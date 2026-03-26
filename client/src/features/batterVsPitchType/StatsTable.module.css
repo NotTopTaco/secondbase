@@ -1,0 +1,68 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table th {
+  padding: var(--space-xs) var(--space-sm);
+  text-align: right;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.table th:first-child {
+  text-align: left;
+}
+
+.table td {
+  padding: var(--space-xs) var(--space-sm);
+  text-align: right;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table td:first-child {
+  text-align: left;
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+.table tr:hover td {
+  background: var(--bg-tertiary);
+}
+
+.highlight td {
+  background: rgba(74, 158, 255, 0.08);
+}
+
+.highlight:hover td {
+  background: rgba(74, 158, 255, 0.14);
+}
+
+.pitchDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--space-xs);
+  vertical-align: middle;
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--space-lg);
+  font-size: 13px;
+}

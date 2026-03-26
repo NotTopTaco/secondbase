@@ -1,0 +1,21 @@
+.firstMeeting {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--space-lg);
+  font-size: 14px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--space-sm) 0;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-xs);
+}

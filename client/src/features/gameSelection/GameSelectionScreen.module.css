@@ -1,0 +1,53 @@
+.screen {
+  min-height: 100vh;
+  padding: var(--space-xl);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.logo {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+}
+
+.logoAccent {
+  color: var(--accent);
+}
+
+.tagline {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: var(--space-xs);
+}
+
+.dateLabel {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: var(--space-sm);
+  font-family: var(--font-mono);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--space-md);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.error {
+  text-align: center;
+  color: var(--danger);
+  padding: var(--space-xl);
+}
+
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--space-xl);
+}

@@ -1,0 +1,44 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 2px var(--space-sm);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.live {
+  background: rgba(46, 204, 113, 0.15);
+  color: var(--success);
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.final {
+  background: rgba(96, 96, 112, 0.15);
+  color: var(--text-muted);
+}
+
+.preview {
+  background: rgba(74, 158, 255, 0.15);
+  color: var(--accent);
+}
+
+.delayed {
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--warning);
+}
