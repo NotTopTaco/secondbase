@@ -69,6 +69,7 @@ export interface MatchupState {
   loadingH2H: boolean;
   error: string | null;
   fetchAllForMatchup: (batterId: number, pitcherId: number) => Promise<void>;
+  fetchBatterVsPitch: (batterId: number, params?: { pitcherHand?: string; season?: number }) => Promise<void>;
   clear: () => void;
 }
 
@@ -159,6 +160,16 @@ export const useMatchupStore = create<MatchupState>((set, get) => ({
 
     if (errors.length > 0) {
       set({ error: errors.join('; ') });
+    }
+  },
+
+  fetchBatterVsPitch: async (batterId, params) => {
+    set({ loadingBatterVsPitch: true });
+    try {
+      const data = await fetchVsPitchType(batterId, params);
+      set({ batterVsPitch: data, loadingBatterVsPitch: false });
+    } catch (e) {
+      set({ loadingBatterVsPitch: false, error: e instanceof Error ? e.message : 'Failed to fetch batter vs pitch type' });
     }
   },
 

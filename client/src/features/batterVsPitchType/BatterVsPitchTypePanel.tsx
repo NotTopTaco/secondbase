@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Panel } from '../../components/ui/Panel';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { Spinner } from '../../components/ui/Spinner';
 import { usePanelStore } from '../../stores/panelStore';
 import { useMatchupStore } from '../../stores/matchupStore';
+import { useGameStore } from '../../stores/gameStore';
 import { StatsTable } from './StatsTable';
 
 const PANEL_ID = 'batterVsPitchType';
@@ -26,6 +27,16 @@ export function BatterVsPitchTypePanel() {
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
   const batterVsPitch = useMatchupStore((s) => s.batterVsPitch);
   const loading = useMatchupStore((s) => s.loadingBatterVsPitch);
+  const fetchBatterVsPitch = useMatchupStore((s) => s.fetchBatterVsPitch);
+  const batterId = useGameStore((s) => s.batter?.id ?? null);
+
+  useEffect(() => {
+    if (!batterId) return;
+    fetchBatterVsPitch(batterId, {
+      pitcherHand: hand === 'all' ? undefined : hand,
+      season: parseInt(season, 10),
+    });
+  }, [batterId, hand, season, fetchBatterVsPitch]);
 
   if (!panel) return null;
 
