@@ -10,12 +10,19 @@ interface TooltipData {
   pitch: PitchEvent;
 }
 
+export type OverlayFn = (
+  svgEl: SVGSVGElement,
+  xScale: d3.ScaleLinear<number, number>,
+  yScale: d3.ScaleLinear<number, number>,
+) => void;
+
 interface UseStrikeZoneOptions {
   pitches: PitchEvent[];
   onTooltip?: (data: TooltipData | null) => void;
+  overlays?: OverlayFn[];
 }
 
-export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
+export function useStrikeZone({ pitches, onTooltip, overlays }: UseStrikeZoneOptions) {
   return useD3Bindable(
     (svg, { width, height }) => {
       const sel = d3.select(svg);
@@ -87,6 +94,13 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
         .attr('fill', 'rgba(255, 255, 255, 0.08)')
         .attr('stroke', '#3a3a4a')
         .attr('stroke-width', 1);
+
+      // Render overlays (between zone and pitches)
+      if (overlays) {
+        for (const overlayFn of overlays) {
+          overlayFn(svg, xScale, yScale);
+        }
+      }
 
       // Plot pitches
       const g = sel.append('g');
@@ -186,6 +200,6 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
           });
       });
     },
-    [pitches],
+    [pitches, overlays],
   );
 }

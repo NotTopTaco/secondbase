@@ -17,6 +17,14 @@ _LOAD_ORDER = [
     "batter_vs_pitch_type",
     "batter_spray_chart",
     "matchup_history",
+    "pitcher_count_tendencies",
+    "win_expectancy",
+    "pitcher_tto_splits",
+    "umpires",
+    "umpire_zones",
+    "umpire_stats",
+    "league_pitch_averages",
+    "batter_count_stats",
 ]
 
 

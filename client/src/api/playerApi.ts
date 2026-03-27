@@ -1,5 +1,6 @@
 import { apiFetch } from './client';
 import type { HotZoneCell, TendencyEntry, BatterVsPitchRow, SprayChartHit } from '../stores/matchupStore';
+import type { CountStatRow, TTOSplitRow, PitchMovementPoint } from '../stores/analyticsDataStore';
 
 export interface PlayerInfo {
   id: number;
@@ -107,4 +108,40 @@ export async function fetchSprayChart(
       pitcherHand: r.pitcher_hand ?? '',
       date: r.game_date ?? '',
     }));
+}
+
+export async function fetchBatterCountStats(
+  id: number,
+  params?: { season?: number },
+): Promise<CountStatRow[]> {
+  const search = new URLSearchParams();
+  if (params?.season) search.set('season', String(params.season));
+  const qs = search.toString();
+  const raw = await apiFetch<{ counts: CountStatRow[] }>(
+    `/players/${id}/count-stats${qs ? `?${qs}` : ''}`
+  );
+  return raw.counts;
+}
+
+export async function fetchTTOSplits(
+  id: number,
+  params?: { season?: number },
+): Promise<TTOSplitRow[]> {
+  const search = new URLSearchParams();
+  if (params?.season) search.set('season', String(params.season));
+  const qs = search.toString();
+  const raw = await apiFetch<{ splits: TTOSplitRow[] }>(
+    `/players/${id}/tto-splits${qs ? `?${qs}` : ''}`
+  );
+  return raw.splits;
+}
+
+export async function fetchPitchMovement(
+  id: number,
+  params?: { season?: number },
+): Promise<{ pitcher: PitchMovementPoint[]; leagueAvg: PitchMovementPoint[] }> {
+  const search = new URLSearchParams();
+  if (params?.season) search.set('season', String(params.season));
+  const qs = search.toString();
+  return apiFetch(`/players/${id}/pitch-movement${qs ? `?${qs}` : ''}`);
 }

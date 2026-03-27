@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../stores/gameStore';
 import { usePollingStore } from '../stores/pollingStore';
 import { useMatchupStore } from '../stores/matchupStore';
+import { useGameAnalyticsStore } from '../stores/gameAnalyticsStore';
+import { useAnalyticsDataStore } from '../stores/analyticsDataStore';
 import { fetchLiveFeed } from '../api/gameApi';
 
 interface UseGamePollingResult {
@@ -33,6 +35,7 @@ export function useGamePolling(gamePk: number | null): UseGamePollingResult {
         if (cancelled) return;
 
         useGameStore.getState().updateFromFeed(feed);
+        useGameAnalyticsStore.getState().updateFromFeed(feed);
         usePollingStore.getState().setConnected(true);
         usePollingStore.getState().setLastUpdated(Date.now());
         setError(null);
@@ -52,6 +55,7 @@ export function useGamePolling(gamePk: number | null): UseGamePollingResult {
 
           if (batter && pitcher) {
             void useMatchupStore.getState().fetchAllForMatchup(batter.id, pitcher.id);
+            void useAnalyticsDataStore.getState().fetchAllP1Data(batter.id, pitcher.id);
           }
         }
       } catch (e) {

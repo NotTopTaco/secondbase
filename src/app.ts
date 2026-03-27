@@ -7,6 +7,7 @@ import { scheduleRouter } from './routes/schedule.js';
 import { gameRouter } from './routes/game.js';
 import { playersRouter } from './routes/players.js';
 import { matchupRouter } from './routes/matchup.js';
+import { gameAnalyticsRouter } from './routes/gameAnalytics.js';
 
 export function createApp() {
   const app = express();
@@ -23,6 +24,7 @@ export function createApp() {
   app.use('/api/game', gameRouter);
   app.use('/api/players', playersRouter);
   app.use('/api/matchup', matchupRouter);
+  app.use('/api/game-analytics', gameAnalyticsRouter);
 
   app.use(errorHandler);
 

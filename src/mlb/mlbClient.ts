@@ -1,5 +1,5 @@
 import { config } from '../config.js';
-import type { MlbScheduleResponse, MlbLiveFeed } from './mlbTypes.js';
+import type { MlbScheduleResponse, MlbLiveFeed, MlbBoxscore, MlbGameLog } from './mlbTypes.js';
 
 const TIMEOUT_MS = 10000;
 
@@ -45,4 +45,14 @@ export async function fetchLiveFeed(gamePk: number): Promise<MlbLiveFeed> {
 
 export async function fetchPlayer(playerId: number) {
   return fetchMlb(`/people/${playerId}?hydrate=currentTeam,stats(type=season)`);
+}
+
+export async function fetchBoxscore(gamePk: number): Promise<MlbBoxscore> {
+  return fetchMlb<MlbBoxscore>(`/game/${gamePk}/boxscore`);
+}
+
+export async function fetchPlayerGameLog(playerId: number, season: number): Promise<MlbGameLog> {
+  return fetchMlb<MlbGameLog>(
+    `/people/${playerId}/stats?stats=gameLog&season=${season}&group=pitching`
+  );
 }

@@ -57,6 +57,12 @@ from pipeline.transform.pitcher_tendencies import transform_pitcher_tendencies  
 from pipeline.transform.batter_vs_pitch import transform_batter_vs_pitch  # noqa: E402
 from pipeline.transform.spray_chart import transform_spray_chart  # noqa: E402
 from pipeline.transform.matchup_history import transform_matchup_history  # noqa: E402
+from pipeline.transform.next_pitch import transform_next_pitch  # noqa: E402
+from pipeline.transform.win_expectancy import transform_win_expectancy  # noqa: E402
+from pipeline.transform.tto_splits import transform_tto_splits  # noqa: E402
+from pipeline.transform.umpire_zones import transform_umpire_zones  # noqa: E402
+from pipeline.transform.league_averages import transform_league_averages  # noqa: E402
+from pipeline.transform.batter_count_stats import transform_batter_count_stats  # noqa: E402
 from pipeline.load.loader import load_all  # noqa: E402
 
 
@@ -139,6 +145,24 @@ def run_full(season: int) -> None:
         logger.info("--- TRANSFORM: Matchup History ---")
         matchup_df = transform_matchup_history(statcast_df, season)
 
+        logger.info("--- TRANSFORM: Next Pitch Tendencies ---")
+        next_pitch_df = transform_next_pitch(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Win Expectancy ---")
+        win_exp_df = transform_win_expectancy(statcast_df, season)
+
+        logger.info("--- TRANSFORM: TTO Splits ---")
+        tto_df = transform_tto_splits(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Umpire Zones ---")
+        umpires_df, umpire_zones_df, umpire_stats_df = transform_umpire_zones(statcast_df, season)
+
+        logger.info("--- TRANSFORM: League Averages ---")
+        league_avg_df = transform_league_averages(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Batter Count Stats ---")
+        batter_count_df = transform_batter_count_stats(statcast_df, season)
+
         # --- Load ---
         logger.info("--- LOAD ---")
         transformed = {
@@ -148,6 +172,14 @@ def run_full(season: int) -> None:
             "batter_vs_pitch_type": bvpt_df,
             "batter_spray_chart": spray_df,
             "matchup_history": matchup_df,
+            "pitcher_count_tendencies": next_pitch_df,
+            "win_expectancy": win_exp_df,
+            "pitcher_tto_splits": tto_df,
+            "umpires": umpires_df,
+            "umpire_zones": umpire_zones_df,
+            "umpire_stats": umpire_stats_df,
+            "league_pitch_averages": league_avg_df,
+            "batter_count_stats": batter_count_df,
         }
         total_rows = load_all(conn, transformed)
 
@@ -201,20 +233,13 @@ def run_incremental(season: int, days: int = 7) -> None:
         raw_players = fetch_all_players(season)
 
         # --- Transform ---
+        # Incremental only updates event-level tables (unique rows per
+        # game/at-bat) and players.  Aggregate stat tables (hot zones,
+        # tendencies, count stats, TTO splits, win expectancy, league
+        # averages, umpire stats) require full-season data to be accurate
+        # and are skipped here — use --full for those.
         logger.info("--- TRANSFORM: Players ---")
         players_df = transform_players(raw_players)
-
-        logger.info("--- TRANSFORM: Hot Zones ---")
-        hot_zones_df = transform_hot_zones(statcast_df, season, period="season")
-
-        logger.info("--- TRANSFORM: Hot Zones (last30) ---")
-        hot_zones_30_df = transform_hot_zones(statcast_df, season, period="last30")
-
-        logger.info("--- TRANSFORM: Pitcher Tendencies ---")
-        pitcher_tend_df = transform_pitcher_tendencies(statcast_df, season)
-
-        logger.info("--- TRANSFORM: Batter vs Pitch Type ---")
-        bvpt_df = transform_batter_vs_pitch(statcast_df, season)
 
         logger.info("--- TRANSFORM: Spray Chart ---")
         spray_df = transform_spray_chart(statcast_df, season)
@@ -222,18 +247,10 @@ def run_incremental(season: int, days: int = 7) -> None:
         logger.info("--- TRANSFORM: Matchup History ---")
         matchup_df = transform_matchup_history(statcast_df, season)
 
-        # Combine hot zones (season + last30)
-        all_hot_zones = pd.concat(
-            [hot_zones_df, hot_zones_30_df], ignore_index=True
-        )
-
         # --- Load ---
-        logger.info("--- LOAD ---")
+        logger.info("--- LOAD (event-level tables only) ---")
         transformed = {
             "players": players_df,
-            "batter_hot_zones": all_hot_zones,
-            "pitcher_tendencies": pitcher_tend_df,
-            "batter_vs_pitch_type": bvpt_df,
             "batter_spray_chart": spray_df,
             "matchup_history": matchup_df,
         }

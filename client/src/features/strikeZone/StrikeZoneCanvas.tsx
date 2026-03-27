@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import type { PitchEvent } from '../../stores/gameStore';
-import { useStrikeZone } from './useStrikeZone';
+import { useStrikeZone, type OverlayFn } from './useStrikeZone';
 import { Tooltip } from '../../components/ui/Tooltip';
 import { PITCH_COLORS, PITCH_LABELS } from '../../theme/colors';
 import styles from './StrikeZoneCanvas.module.css';
 
 interface StrikeZoneCanvasProps {
   pitches: PitchEvent[];
+  overlays?: OverlayFn[];
 }
 
 interface TooltipState {
@@ -15,12 +16,13 @@ interface TooltipState {
   pitch: PitchEvent;
 }
 
-export function StrikeZoneCanvas({ pitches }: StrikeZoneCanvasProps) {
+export function StrikeZoneCanvas({ pitches, overlays }: StrikeZoneCanvasProps) {
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   const { containerRef } = useStrikeZone({
     pitches,
     onTooltip: setTooltip,
+    overlays,
   });
 
   return (

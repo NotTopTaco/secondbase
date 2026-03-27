@@ -1,0 +1,48 @@
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.current {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.diff {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.up {
+  color: var(--success, #2ecc71);
+}
+
+.down {
+  color: var(--danger, #e74c3c);
+}
+
+.arrow {
+  font-size: 9px;
+}
+
+.baseline {
+  font-size: 11px;
+  color: var(--text-muted);
+}

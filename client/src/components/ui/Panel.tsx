@@ -65,7 +65,7 @@ export function Panel({
           {collapsed ? '+' : '\u2212'}
         </button>
       </div>
-      <div className={styles.body}>{children}</div>
+      {!collapsed && <div className={styles.body}>{children}</div>}
     </div>
   );
 }

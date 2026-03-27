@@ -112,3 +112,43 @@ export interface MlbPlayEvent {
     launchAngle?: number;
   };
 }
+
+export interface MlbBoxscore {
+  officials?: Array<{
+    official: { id: number; fullName: string };
+    officialType: string;
+  }>;
+  teams: {
+    away: { bullpen: number[]; players: Record<string, MlbBoxscorePlayer> };
+    home: { bullpen: number[]; players: Record<string, MlbBoxscorePlayer> };
+  };
+}
+
+export interface MlbBoxscorePlayer {
+  person: { id: number; fullName: string };
+  position: { abbreviation: string };
+  stats?: {
+    pitching?: {
+      numberOfPitches?: number;
+      earnedRuns?: number;
+      inningsPitched?: string;
+    };
+  };
+  seasonStats?: {
+    pitching?: {
+      era?: string;
+    };
+  };
+}
+
+export interface MlbGameLog {
+  stats: Array<{
+    splits: Array<{
+      date: string;
+      stat: {
+        numberOfPitches?: number;
+        gamesPlayed?: number;
+      };
+    }>;
+  }>;
+}

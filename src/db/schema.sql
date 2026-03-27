@@ -116,6 +116,99 @@ CREATE TABLE IF NOT EXISTS zone_grid (
   z_max REAL NOT NULL
 );
 
+-- P1 Analytics tables
+
+CREATE TABLE IF NOT EXISTS pitcher_count_tendencies (
+  player_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  batter_hand TEXT NOT NULL,
+  balls INTEGER NOT NULL,
+  strikes INTEGER NOT NULL,
+  pitch_type TEXT NOT NULL,
+  usage_pct REAL,
+  sample_size INTEGER DEFAULT 0,
+  zone_distribution TEXT,  -- JSON: { "zone_id": frequency_pct }
+  PRIMARY KEY (player_id, season, batter_hand, balls, strikes, pitch_type),
+  FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+CREATE TABLE IF NOT EXISTS win_expectancy (
+  inning INTEGER NOT NULL,
+  half TEXT NOT NULL,        -- 'top' or 'bottom'
+  outs INTEGER NOT NULL,
+  runner_state TEXT NOT NULL, -- '000' through '111'
+  score_diff INTEGER NOT NULL,
+  home_wp REAL NOT NULL,
+  PRIMARY KEY (inning, half, outs, runner_state, score_diff)
+);
+
+CREATE TABLE IF NOT EXISTS pitcher_tto_splits (
+  player_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  times_through INTEGER NOT NULL,  -- 1, 2, or 3
+  pa INTEGER DEFAULT 0,
+  ba REAL,
+  slg REAL,
+  woba REAL,
+  k_pct REAL,
+  bb_pct REAL,
+  avg_exit_velo REAL,
+  PRIMARY KEY (player_id, season, times_through),
+  FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+CREATE TABLE IF NOT EXISTS umpires (
+  umpire_id INTEGER PRIMARY KEY,
+  umpire_name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS umpire_zones (
+  umpire_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  zone_id INTEGER NOT NULL,  -- 1-25
+  called_strike_pct REAL,
+  sample_size INTEGER DEFAULT 0,
+  PRIMARY KEY (umpire_id, season, zone_id),
+  FOREIGN KEY (umpire_id) REFERENCES umpires(umpire_id)
+);
+
+CREATE TABLE IF NOT EXISTS umpire_stats (
+  umpire_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  games INTEGER DEFAULT 0,
+  accuracy_pct REAL,
+  expanded_zone_rate REAL,
+  consistency_rating REAL,
+  PRIMARY KEY (umpire_id, season),
+  FOREIGN KEY (umpire_id) REFERENCES umpires(umpire_id)
+);
+
+CREATE TABLE IF NOT EXISTS league_pitch_averages (
+  season INTEGER NOT NULL,
+  pitch_type TEXT NOT NULL,
+  pitcher_hand TEXT NOT NULL,
+  avg_velocity REAL,
+  avg_h_break REAL,
+  avg_v_break REAL,
+  sample_size INTEGER DEFAULT 0,
+  PRIMARY KEY (season, pitch_type, pitcher_hand)
+);
+
+CREATE TABLE IF NOT EXISTS batter_count_stats (
+  player_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  balls INTEGER NOT NULL,
+  strikes INTEGER NOT NULL,
+  pa INTEGER DEFAULT 0,
+  ba REAL,
+  slg REAL,
+  woba REAL,
+  k_pct REAL,
+  bb_pct REAL,
+  PRIMARY KEY (player_id, season, balls, strikes),
+  FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_hot_zones_lookup ON batter_hot_zones(player_id, season, period);
 CREATE INDEX IF NOT EXISTS idx_tendencies_lookup ON pitcher_tendencies(player_id, season, batter_hand);
@@ -124,6 +217,11 @@ CREATE INDEX IF NOT EXISTS idx_spray_lookup ON batter_spray_chart(player_id, sea
 CREATE INDEX IF NOT EXISTS idx_matchup_lookup ON matchup_history(batter_id, pitcher_id);
 CREATE INDEX IF NOT EXISTS idx_spray_game ON batter_spray_chart(game_pk);
 CREATE INDEX IF NOT EXISTS idx_matchup_game ON matchup_history(game_pk);
+CREATE INDEX IF NOT EXISTS idx_count_tend_lookup ON pitcher_count_tendencies(player_id, season, batter_hand, balls, strikes);
+CREATE INDEX IF NOT EXISTS idx_tto_lookup ON pitcher_tto_splits(player_id, season);
+CREATE INDEX IF NOT EXISTS idx_umpire_zones_lookup ON umpire_zones(umpire_id, season);
+CREATE INDEX IF NOT EXISTS idx_league_avg_lookup ON league_pitch_averages(season, pitcher_hand);
+CREATE INDEX IF NOT EXISTS idx_batter_count_lookup ON batter_count_stats(player_id, season);
 
 -- Populate zone grid (5x5, bottom-left to top-right)
 -- Horizontal: -1.25 to +1.25 ft (5 bands of 0.5 ft)

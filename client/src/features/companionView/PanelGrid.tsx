@@ -20,6 +20,14 @@ import { PitcherTendencyPanel } from '../pitcherTendency/PitcherTendencyPanel';
 import { BatterVsPitchTypePanel } from '../batterVsPitchType/BatterVsPitchTypePanel';
 import { SprayChartPanel } from '../sprayChart/SprayChartPanel';
 import { HeadToHeadPanel } from '../headToHead/HeadToHeadPanel';
+import { NextPitchPanel } from '../nextPitchProbability/NextPitchPanel';
+import { WinProbabilityPanel } from '../winProbability/WinProbabilityPanel';
+import { PitcherFatiguePanel } from '../pitcherFatigue/PitcherFatiguePanel';
+import { TimeThroughOrderPanel } from '../timeThroughOrder/TimeThroughOrderPanel';
+import { UmpireScoutingPanel } from '../umpireScouting/UmpireScoutingPanel';
+import { PitchMovementPanel } from '../pitchMovement/PitchMovementPanel';
+import { BullpenStatusPanel } from '../bullpenStatus/BullpenStatusPanel';
+import { BatterByCountPanel } from '../batterByCount/BatterByCountPanel';
 import styles from './PanelGrid.module.css';
 
 const PANEL_COMPONENTS: Record<string, React.FC> = {
@@ -29,6 +37,14 @@ const PANEL_COMPONENTS: Record<string, React.FC> = {
   batterVsPitchType: BatterVsPitchTypePanel,
   sprayChart: SprayChartPanel,
   headToHead: HeadToHeadPanel,
+  nextPitch: NextPitchPanel,
+  winProbability: WinProbabilityPanel,
+  pitcherFatigue: PitcherFatiguePanel,
+  timeThroughOrder: TimeThroughOrderPanel,
+  umpireScouting: UmpireScoutingPanel,
+  pitchMovement: PitchMovementPanel,
+  bullpenStatus: BullpenStatusPanel,
+  batterByCount: BatterByCountPanel,
 };
 
 export function PanelGrid() {

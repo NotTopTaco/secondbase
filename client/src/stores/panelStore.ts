@@ -14,7 +14,21 @@ const DEFAULT_PANELS: PanelInfo[] = [
   { id: 'batterVsPitchType', title: 'Batter vs Pitch Type', collapsed: false },
   { id: 'sprayChart', title: 'Spray Chart', collapsed: false },
   { id: 'headToHead', title: 'Head to Head', collapsed: false },
+  { id: 'nextPitch', title: 'Next Pitch Prediction', collapsed: false },
+  { id: 'winProbability', title: 'Win Probability', collapsed: false },
+  { id: 'pitcherFatigue', title: 'Pitcher Fatigue', collapsed: false },
+  { id: 'timeThroughOrder', title: 'Time Through Order', collapsed: false },
+  { id: 'umpireScouting', title: 'Umpire Scouting', collapsed: false },
+  { id: 'pitchMovement', title: 'Pitch Movement', collapsed: false },
+  { id: 'bullpenStatus', title: 'Bullpen Status', collapsed: false },
+  { id: 'batterByCount', title: 'Batter by Count', collapsed: false },
 ];
+
+const CURRENT_VERSION = 2;
+const P1_PANEL_IDS = new Set([
+  'nextPitch', 'winProbability', 'pitcherFatigue', 'timeThroughOrder',
+  'umpireScouting', 'pitchMovement', 'bullpenStatus', 'batterByCount',
+]);
 
 export interface PanelState {
   panels: PanelInfo[];
@@ -46,6 +60,17 @@ export const usePanelStore = create<PanelState>()(
     }),
     {
       name: 'secondbase-panels',
+      version: CURRENT_VERSION,
+      migrate: (persisted: any, version: number) => {
+        if (version < 2) {
+          // Add P1 panels to existing layouts
+          const existing = persisted as PanelState;
+          const existingIds = new Set(existing.panels.map((p: PanelInfo) => p.id));
+          const newPanels = DEFAULT_PANELS.filter(p => P1_PANEL_IDS.has(p.id) && !existingIds.has(p.id));
+          return { ...existing, panels: [...existing.panels, ...newPanels] };
+        }
+        return persisted;
+      },
     },
   ),
 );
