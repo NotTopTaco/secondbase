@@ -1,12 +1,5 @@
-import { useD3Bindable } from '../../hooks/useD3Bindable';
-import {
-  computeGridRects,
-  createDivergingScale,
-  formatMetricValue,
-  normalizeValue,
-} from './hotZoneUtils';
+import { normalizeValue, formatMetricValue } from './hotZoneUtils';
 import type { HotZoneCell } from '../../stores/matchupStore';
-import * as d3 from 'd3';
 import styles from './HotZoneCanvas.module.css';
 
 interface HotZoneCanvasProps {
@@ -14,68 +7,71 @@ interface HotZoneCanvasProps {
   metric: string;
 }
 
+const GRID_SIZE = 5;
+
+function getZoneColor(norm: number): { background: string; glow?: string } {
+  if (norm > 0.5) {
+    // Hot: red with increasing intensity
+    const intensity = (norm - 0.5) * 2; // 0 → 1
+    const r = 177;
+    const g = Math.round(24 * (1 - intensity));
+    const b = Math.round(43 * (1 - intensity));
+    const alpha = 0.15 + intensity * 0.7;
+    return {
+      background: `rgba(${r}, ${g}, ${b}, ${alpha})`,
+      glow: intensity > 0.4 ? `0 0 12px rgba(178, 24, 43, ${intensity * 0.4})` : undefined,
+    };
+  }
+  if (norm < 0.5) {
+    // Cold: blue with increasing intensity
+    const intensity = (0.5 - norm) * 2; // 0 → 1
+    const alpha = 0.15 + intensity * 0.6;
+    return {
+      background: `rgba(33, 102, 172, ${alpha})`,
+    };
+  }
+  // Neutral
+  return { background: 'rgba(255, 255, 255, 0.03)' };
+}
+
 export function HotZoneCanvas({ zones, metric }: HotZoneCanvasProps) {
-  const { containerRef } = useD3Bindable(
-    (svg, { width, height }) => {
-      const sel = d3.select(svg);
-      sel.selectAll('*').remove();
+  const metricKey = metric === 'BA' ? 'ba' : metric === 'SLG' ? 'slg' : 'woba';
+  const zoneMap = new Map(zones.map((z) => [z.zone, z]));
 
-      const size = Math.min(width, height);
-      sel.attr('width', size).attr('height', size);
+  const cells = [];
+  for (let row = 0; row < GRID_SIZE; row++) {
+    for (let col = 0; col < GRID_SIZE; col++) {
+      const zone = row * GRID_SIZE + col + 1;
+      const cell = zoneMap.get(zone);
+      const value = (cell?.[metricKey as keyof HotZoneCell] as number) ?? 0;
+      const sampleSize = cell?.sampleSize ?? 0;
+      const norm = normalizeValue(value, metric);
+      const { background, glow } = getZoneColor(norm);
+      const lowSample = sampleSize < 5;
 
-      // SVG defs for glow filter
-      const defs = sel.append('defs');
-      const glowFilter = defs.append('filter').attr('id', 'hotGlow');
-      glowFilter.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', '2').attr('result', 'blur');
-      const glowMerge = glowFilter.append('feMerge');
-      glowMerge.append('feMergeNode').attr('in', 'blur');
-      glowMerge.append('feMergeNode').attr('in', 'SourceGraphic');
-
-      const colorScale = createDivergingScale();
-      const rects = computeGridRects(size, size);
-
-      const metricKey = metric === 'BA' ? 'ba' : metric === 'SLG' ? 'slg' : 'woba';
-      const zoneMap = new Map(zones.map((z) => [z.zone, z[metricKey as keyof typeof z] as number ?? 0]));
-
-      const g = sel.append('g');
-
-      rects.forEach((r) => {
-        const value = zoneMap.get(r.zone) ?? 0;
-        const norm = normalizeValue(value, metric);
-
-        const cell = g.append('rect')
-          .attr('x', r.x)
-          .attr('y', r.y)
-          .attr('width', r.width)
-          .attr('height', r.height)
-          .attr('rx', 6)
-          .attr('fill', colorScale(norm));
-
-        // Glow and stroke for hot cells
-        if (norm > 0.65) {
-          cell.attr('filter', 'url(#hotGlow)');
-          cell.attr('stroke', 'rgba(178, 24, 43, 0.4)').attr('stroke-width', 1);
-        } else if (norm < 0.35) {
-          cell.attr('stroke', 'rgba(33, 102, 172, 0.3)').attr('stroke-width', 0.5);
-        }
-
-        g.append('text')
-          .attr('x', r.x + r.width / 2)
-          .attr('y', r.y + r.height / 2)
-          .attr('dy', '0.35em')
-          .attr('text-anchor', 'middle')
-          .attr('font-size', `${Math.max(10, r.width * 0.22)}px`)
-          .attr('font-weight', '600')
-          .attr('fill', norm > 0.3 && norm < 0.7 ? '#333' : '#fff')
-          .text(formatMetricValue(value, metric));
-      });
-    },
-    [zones, metric],
-  );
+      cells.push(
+        <div
+          key={zone}
+          className={`${styles.cell} ${lowSample ? styles.lowSample : ''}`}
+          style={{
+            background,
+            boxShadow: glow,
+          }}
+        >
+          {sampleSize > 0 && (
+            <span className={styles.value}>{formatMetricValue(value, metric)}</span>
+          )}
+          {sampleSize > 0 && (
+            <span className={styles.sample}>{sampleSize}</span>
+          )}
+        </div>
+      );
+    }
+  }
 
   return (
-    <div className={styles.container}>
-      <svg ref={containerRef} className={styles.svg} />
+    <div className={styles.grid}>
+      {cells}
     </div>
   );
 }

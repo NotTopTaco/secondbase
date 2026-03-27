@@ -17,12 +17,10 @@ export function ZoneGrid({ zones, color }: ZoneGridProps) {
       const freq = zones.get(zone) ?? 0;
       const opacity = freq > 0 ? 0.15 + (freq / maxFreq) * 0.85 : 0;
       const pct = (freq * 100).toFixed(0);
-      const isStrikeZone = row >= 1 && row <= 3 && col >= 1 && col <= 3;
-
       cells.push(
         <div
           key={zone}
-          className={`${styles.cell} ${isStrikeZone ? styles.strikeZone : ''}`}
+          className={styles.cell}
           style={{
             background: freq > 0 ? color : undefined,
             opacity: freq > 0 ? opacity : undefined,

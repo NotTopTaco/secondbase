@@ -75,9 +75,20 @@ export function getBatterVsPitchType(playerId: number, season?: number, pitcherH
     ).all(playerId, s, pitcherHand) as BatterVsPitchType[];
   }
 
-  return db.prepare(
-    'SELECT * FROM batter_vs_pitch_type WHERE player_id = ? AND season = ?'
-  ).all(playerId, s) as BatterVsPitchType[];
+  return db.prepare(`
+    SELECT
+      player_id, season, pitch_type,
+      SUM(pa) as pa,
+      ROUND(SUM(ba * pa) / NULLIF(SUM(CASE WHEN ba IS NOT NULL THEN pa ELSE 0 END), 0), 3) as ba,
+      ROUND(SUM(slg * pa) / NULLIF(SUM(CASE WHEN slg IS NOT NULL THEN pa ELSE 0 END), 0), 3) as slg,
+      ROUND(SUM(woba * pa) / NULLIF(SUM(CASE WHEN woba IS NOT NULL THEN pa ELSE 0 END), 0), 3) as woba,
+      ROUND(SUM(whiff_pct * pa) / NULLIF(SUM(CASE WHEN whiff_pct IS NOT NULL THEN pa ELSE 0 END), 0), 3) as whiff_pct,
+      ROUND(SUM(avg_exit_velo * pa) / NULLIF(SUM(CASE WHEN avg_exit_velo IS NOT NULL THEN pa ELSE 0 END), 0), 1) as avg_exit_velo,
+      ROUND(SUM(avg_launch_angle * pa) / NULLIF(SUM(CASE WHEN avg_launch_angle IS NOT NULL THEN pa ELSE 0 END), 0), 1) as avg_launch_angle
+    FROM batter_vs_pitch_type
+    WHERE player_id = ? AND season = ?
+    GROUP BY player_id, season, pitch_type
+  `).all(playerId, s) as BatterVsPitchType[];
 }
 
 export function searchPlayers(query: string): { player_id: number; full_name: string; team: string | null; position: string | null }[] {

@@ -1,10 +1,25 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
   gap: 2px;
   max-width: 260px;
   aspect-ratio: 1;
   margin: 0 auto;
+  position: relative;
+}
+
+.grid::after {
+  content: '';
+  position: absolute;
+  top: calc(20% + 0.4px);
+  left: calc(20% + 0.4px);
+  width: calc(60% - 0.8px);
+  height: calc(60% - 0.8px);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .cell {
@@ -15,10 +30,6 @@
   background: rgba(255, 255, 255, 0.02);
   transition: opacity var(--duration-fast);
   position: relative;
-}
-
-.strikeZone {
-  outline: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pct {

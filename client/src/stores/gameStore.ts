@@ -57,6 +57,10 @@ interface LiveFeed {
       away?: { id?: number; name?: string; abbreviation?: string };
       home?: { id?: number; name?: string; abbreviation?: string };
     };
+    probablePitchers?: {
+      away?: { id?: number; fullName?: string };
+      home?: { id?: number; fullName?: string };
+    };
   };
   liveData?: {
     linescore?: {
@@ -164,6 +168,28 @@ export const useGameStore = create<GameState>((set) => ({
     const offense = linescore?.offense;
     const lineTeams = linescore?.teams;
     const teams = gameData?.teams;
+    const isPreview = gameData?.status?.abstractGameState === 'Preview';
+    const probablePitchers = gameData?.probablePitchers;
+
+    // For preview games, the MLB API may return both probable pitchers in
+    // currentPlay.matchup (home starter as "pitcher", away starter as "batter").
+    // Use probablePitchers instead so we don't treat a pitcher as a batter.
+    let batter: { id: number; name: string } | null = null;
+    let pitcher: { id: number; name: string } | null = null;
+
+    if (isPreview) {
+      if (probablePitchers?.home) {
+        pitcher = { id: probablePitchers.home.id ?? 0, name: probablePitchers.home.fullName ?? '' };
+      }
+      // No batter for preview — lineup order is unknown
+    } else {
+      batter = matchup?.batter
+        ? { id: matchup.batter.id ?? 0, name: matchup.batter.fullName ?? '' }
+        : null;
+      pitcher = matchup?.pitcher
+        ? { id: matchup.pitcher.id ?? 0, name: matchup.pitcher.fullName ?? '' }
+        : null;
+    }
 
     set({
       status: gameData?.status?.abstractGameState ?? '',
@@ -190,12 +216,8 @@ export const useGameStore = create<GameState>((set) => ({
             errors: lineTeams?.home?.errors ?? 0,
           }
         : null,
-      batter: matchup?.batter
-        ? { id: matchup.batter.id ?? 0, name: matchup.batter.fullName ?? '' }
-        : null,
-      pitcher: matchup?.pitcher
-        ? { id: matchup.pitcher.id ?? 0, name: matchup.pitcher.fullName ?? '' }
-        : null,
+      batter,
+      pitcher,
       count: {
         balls: cnt?.balls ?? 0,
         strikes: cnt?.strikes ?? 0,
