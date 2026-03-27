@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../stores/gameStore';
 import { usePollingStore } from '../../stores/pollingStore';
 import { StatusBadge } from '../../components/ui/StatusBadge';
@@ -31,6 +32,7 @@ export function GameStateBar() {
     runners,
   } = useGameStore();
 
+  const navigate = useNavigate();
   const delayOffsetS = usePollingStore((s) => s.delayOffsetS);
   const setDelayOffset = usePollingStore((s) => s.setDelayOffset);
 
@@ -46,6 +48,17 @@ export function GameStateBar() {
         '--home-color': homeColors.primary,
       } as React.CSSProperties}
     >
+      {/* Home plate icon */}
+      <button
+        className={styles.homeBtn}
+        onClick={(e) => { e.stopPropagation(); navigate('/'); }}
+        aria-label="Back to games"
+      >
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M3 8 L10 2 L17 8 L17 17 L3 17 Z" transform="rotate(180 10 10)" />
+        </svg>
+      </button>
+
       {/* Left: Scores */}
       <div className={styles.section}>
         <div className={styles.scoreBlock}>
