@@ -63,7 +63,10 @@ export function GameStateBar() {
 
       {/* Logo — centered */}
       <div className={styles.logo}>
-        Second<span className={styles.logoAccent}>Base</span>
+        <span className={styles.logoText}>
+          Second<span className={styles.logoAccent}>Base</span>
+        </span>
+        <StatusBadge status={statusLabel} />
       </div>
 
       {/* Zone B — Scoreboard */}
@@ -107,9 +110,6 @@ export function GameStateBar() {
             <span className={styles.statCell}>{homeTeam?.hits ?? 0}</span>
             <span className={styles.statCell}>{homeTeam?.errors ?? 0}</span>
           </div>
-        </div>
-        <div className={styles.statusBadge}>
-          <StatusBadge status={statusLabel} />
         </div>
       </div>
 

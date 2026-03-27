@@ -20,14 +20,21 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.logoText {
   font-size: 28px;
   font-weight: 700;
   font-family: var(--font-display);
   color: var(--text-primary);
   letter-spacing: -1px;
   text-shadow: 0 0 20px rgba(232, 232, 240, 0.15);
-  pointer-events: none;
-  white-space: nowrap;
 }
 
 .logoAccent {
@@ -64,8 +71,6 @@
   align-items: center;
   gap: var(--space-md);
   padding: 0 var(--space-md);
-  position: relative;
-  padding-right: 56px;
 }
 
 .inningInfo {
@@ -137,13 +142,6 @@
   font-size: 11px;
   color: var(--text-muted);
   text-align: center;
-}
-
-.statusBadge {
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
 }
 
 /* ── Zone C — Situation ──────────────────────────────────── */
@@ -273,4 +271,77 @@
   color: var(--text-secondary);
   min-width: 28px;
   text-align: center;
+}
+
+/* ── Responsive: Tablet ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .bar {
+    grid-template-columns: auto 1fr auto auto;
+  }
+
+  .logoText {
+    font-size: 22px;
+  }
+
+  .zoneMatchup {
+    display: none;
+  }
+
+  .zoneScoreboard {
+    padding: 0 var(--space-sm);
+  }
+
+  .zoneSituation,
+  .zoneDelay {
+    padding: 0 var(--space-sm);
+  }
+}
+
+/* ── Responsive: Mobile ──────────────────────────────────── */
+@media (max-width: 520px) {
+  .bar {
+    grid-template-columns: auto 1fr auto;
+    min-height: unset;
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  .logoText {
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  .zoneNav {
+    padding: 0;
+  }
+
+  .zoneScoreboard {
+    padding: 0 var(--space-sm);
+    gap: var(--space-sm);
+  }
+
+  .zoneSituation {
+    padding: 0 var(--space-sm);
+  }
+
+  .zoneMatchup,
+  .zoneDelay {
+    display: none;
+  }
+
+  .scoreHeaders,
+  .scoreRow {
+    grid-template-columns: 20px 32px 24px;
+  }
+
+  .statCell {
+    display: none;
+  }
+
+  .scoreHeader:nth-child(n+4) {
+    display: none;
+  }
+
+  .runs {
+    font-size: 18px;
+  }
 }
