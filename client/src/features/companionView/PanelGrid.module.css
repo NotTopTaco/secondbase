@@ -1,13 +1,81 @@
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--panel-min), 1fr));
-  gap: var(--space-md);
-  padding: var(--space-md);
+.layout {
+  display: flex;
   flex: 1;
+  gap: var(--space-sm);
+  padding: var(--space-sm);
+  overflow: hidden;
+}
+
+.sideColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow-y: auto;
+  min-width: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(191, 13, 62, 0.25) transparent;
+}
+
+.sideColumn::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sideColumn::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sideColumn::-webkit-scrollbar-thumb {
+  background: rgba(191, 13, 62, 0.25);
+  border-radius: 4px;
+}
+
+.sideColumn::-webkit-scrollbar-thumb:hover {
+  background: rgba(191, 13, 62, 0.45);
+}
+
+.centerColumn {
+  flex: 0 0 auto;
+  width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(191, 13, 62, 0.25) transparent;
+}
+
+.centerColumn::-webkit-scrollbar {
+  width: 4px;
+}
+
+.centerColumn::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.centerColumn::-webkit-scrollbar-thumb {
+  background: rgba(191, 13, 62, 0.25);
+  border-radius: 4px;
+}
+
+.centerColumn::-webkit-scrollbar-thumb:hover {
+  background: rgba(191, 13, 62, 0.45);
 }
 
 @media (max-width: 960px) {
-  .grid {
-    grid-template-columns: 1fr;
+  .layout {
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(191, 13, 62, 0.25) transparent;
+  }
+
+  .sideColumn {
+    overflow-y: visible;
+  }
+
+  .centerColumn {
+    width: auto;
+    overflow-y: visible;
   }
 }

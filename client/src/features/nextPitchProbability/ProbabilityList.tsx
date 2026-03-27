@@ -25,7 +25,7 @@ export function ProbabilityList({ predictions }: ProbabilityListProps) {
                 style={{ width: `${widthPct}%`, backgroundColor: color }}
               />
             </div>
-            <span className={styles.pct}>{(p.probability * 100).toFixed(1)}%</span>
+            <span className={styles.pct}>{p.probability.toFixed(1)}%</span>
           </div>
         );
       })}

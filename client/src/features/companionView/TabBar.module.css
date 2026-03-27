@@ -1,0 +1,63 @@
+.tabBar {
+  display: flex;
+  gap: 0;
+  padding: 0 var(--space-md);
+  background: var(--gradient-bar);
+  border-bottom: 1px solid rgba(191, 13, 62, 0.12);
+  position: sticky;
+  top: 55px;
+  z-index: 90;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: var(--space-sm) var(--space-lg);
+  transition: color var(--duration-fast), border-color var(--duration-fast), background var(--duration-fast);
+  cursor: pointer;
+  position: relative;
+}
+
+.tab:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tabActive {
+  color: var(--text-primary);
+  border-bottom-color: var(--mlb-red);
+}
+
+.tabActive::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: var(--mlb-red);
+  filter: blur(4px);
+  opacity: 0.6;
+}
+
+@media (max-width: 520px) {
+  .tabBar {
+    padding: 0 var(--space-sm);
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 11px;
+  }
+}

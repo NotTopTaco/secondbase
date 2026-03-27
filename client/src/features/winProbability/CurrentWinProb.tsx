@@ -7,7 +7,7 @@ interface CurrentWinProbProps {
 }
 
 export function CurrentWinProb({ homeWp, homeTeam, awayTeam }: CurrentWinProbProps) {
-  const pct = Math.round(homeWp * 100);
+  const pct = Math.round(homeWp);
   const teamLabel = homeTeam ?? 'Home';
   const oppLabel = awayTeam ?? 'Away';
 

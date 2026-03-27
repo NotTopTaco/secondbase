@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGameStore } from '../../stores/gameStore';
+import { usePanelStore } from '../../stores/panelStore';
 import { useGamePolling } from '../../hooks/useGamePolling';
 import { useSchedulePolling } from '../../hooks/useSchedulePolling';
 import { GameStateBar } from '../gameStateBar/GameStateBar';
-import { PanelGrid } from './PanelGrid';
+import { TabBar } from './TabBar';
+import { TabPanelGrid } from './TabPanelGrid';
 import { Sidebar } from './Sidebar';
 import styles from './CompanionView.module.css';
 
@@ -12,6 +14,8 @@ export function CompanionView() {
   const { gamePk: gamePkParam } = useParams<{ gamePk: string }>();
   const gamePk = gamePkParam ? parseInt(gamePkParam, 10) : null;
   const setGamePk = useGameStore((s) => s.setGamePk);
+  const activeTab = usePanelStore((s) => s.activeTab);
+  const setActiveTab = usePanelStore((s) => s.setActiveTab);
 
   useEffect(() => {
     if (gamePk) {
@@ -25,6 +29,7 @@ export function CompanionView() {
   return (
     <div className={styles.view}>
       <GameStateBar />
+      <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
       {error && (
         <div className={styles.error}>
           <span className={styles.errorDot} />
@@ -33,7 +38,7 @@ export function CompanionView() {
       )}
       <div className={styles.mainArea}>
         <div className={styles.content}>
-          <PanelGrid />
+          <TabPanelGrid />
         </div>
         <Sidebar activeGamePk={gamePk} />
       </div>

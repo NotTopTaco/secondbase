@@ -7,24 +7,31 @@
   flex-direction: column;
   min-width: 0;
   backdrop-filter: blur(8px);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--duration-fast);
+}
+
+.panel:hover {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-sm) var(--space-md);
+  padding: 6px var(--space-sm);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   border-left: 2px solid var(--mlb-red);
   background: var(--gradient-panel-header);
   user-select: none;
+  min-height: 32px;
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
+  min-width: 0;
 }
 
 .dragHandle {
@@ -32,7 +39,13 @@
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  padding: var(--space-xs);
+  padding: 2px;
+  opacity: 0.5;
+  transition: opacity var(--duration-fast);
+}
+
+.panel:hover .dragHandle {
+  opacity: 1;
 }
 
 .dragHandle:active {
@@ -40,52 +53,101 @@
 }
 
 .title {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
   font-family: var(--font-display);
   color: var(--text-primary);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playerTags {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  margin-left: var(--space-sm);
+  margin-left: var(--space-xs);
 }
 
 .playerTag {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-  padding: 2px 8px 2px 2px;
+  border-radius: 10px;
+  padding: 1px 6px 1px 1px;
 }
 
 .playerName {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 400;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   text-transform: none;
   letter-spacing: 0;
   white-space: nowrap;
 }
 
-.collapseBtn {
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.pinBtn {
   background: none;
   border: none;
-  color: var(--text-secondary);
-  padding: var(--space-xs);
+  color: var(--text-muted);
+  padding: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
-  transition: color 0.15s, background 0.15s;
-  font-size: 16px;
-  width: 28px;
-  height: 28px;
+  transition: color var(--duration-fast), background var(--duration-fast), opacity var(--duration-fast);
+  width: 24px;
+  height: 24px;
+  opacity: 0;
+}
+
+.panel:hover .pinBtn {
+  opacity: 0.6;
+}
+
+.panel:hover .pinBtn:hover {
+  opacity: 1;
+  color: var(--text-primary);
+  background: rgba(191, 13, 62, 0.1);
+}
+
+.pinActive {
+  color: var(--mlb-red);
+  opacity: 1;
+}
+
+.panel:hover .pinActive {
+  opacity: 1;
+}
+
+.pinActive:hover {
+  color: var(--mlb-red);
+  background: rgba(191, 13, 62, 0.15);
+}
+
+.collapseBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast), background var(--duration-fast);
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
 }
 
 .collapseBtn:hover {
@@ -94,7 +156,7 @@
 }
 
 .body {
-  padding: var(--space-md);
+  padding: var(--space-sm);
   flex: 1;
   overflow: auto;
 }

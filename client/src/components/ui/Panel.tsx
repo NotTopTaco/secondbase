@@ -1,8 +1,11 @@
-import type { ReactNode } from 'react';
+import { createContext, useContext, type ReactNode } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { PlayerPhoto } from './PlayerPhoto';
+import { usePanelStore, TAB_ASSIGNMENTS } from '../../stores/panelStore';
 import styles from './Panel.module.css';
+
+export const PanelLayoutContext = createContext({ sortable: true });
 
 export interface PanelPlayer {
   id: number;
@@ -25,9 +28,14 @@ export function Panel({
   children,
   collapsed,
   onToggleCollapse,
-  sortable = false,
+  sortable: _sortableProp = false,
   players,
 }: PanelProps) {
+  const { sortable: contextSortable } = useContext(PanelLayoutContext);
+  const isPinnable = id in TAB_ASSIGNMENTS;
+  const isPinned = usePanelStore((s) => s.pinnedPanelIds.includes(id));
+  const togglePin = usePanelStore((s) => s.togglePin);
+
   const {
     attributes,
     listeners,
@@ -35,7 +43,7 @@ export function Panel({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id, disabled: !sortable });
+  } = useSortable({ id, disabled: !contextSortable });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -51,7 +59,7 @@ export function Panel({
     >
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          {sortable && (
+          {contextSortable && (
             <div className={styles.dragHandle} {...attributes} {...listeners}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                 <circle cx="5" cy="3" r="1.5" />
@@ -75,13 +83,26 @@ export function Panel({
             </div>
           )}
         </div>
-        <button
-          className={styles.collapseBtn}
-          onClick={onToggleCollapse}
-          aria-label={collapsed ? 'Expand panel' : 'Collapse panel'}
-        >
-          {collapsed ? '+' : '\u2212'}
-        </button>
+        <div className={styles.headerRight}>
+          {isPinnable && (
+            <button
+              className={`${styles.pinBtn} ${isPinned ? styles.pinActive : ''}`}
+              onClick={() => togglePin(id)}
+              aria-label={isPinned ? 'Unpin panel' : 'Pin panel'}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={isPinned ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                <path d="M12 2l3 9h7l-5.5 4 2 9L12 18.5 5.5 24l2-9L2 11h7z" />
+              </svg>
+            </button>
+          )}
+          <button
+            className={styles.collapseBtn}
+            onClick={onToggleCollapse}
+            aria-label={collapsed ? 'Expand panel' : 'Collapse panel'}
+          >
+            {collapsed ? '+' : '\u2212'}
+          </button>
+        </div>
       </div>
       {!collapsed && <div className={styles.body}>{children}</div>}
     </div>
