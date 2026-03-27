@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Panel } from '../../components/ui/Panel';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { Spinner } from '../../components/ui/Spinner';
@@ -27,6 +27,12 @@ export function HotZonePanel() {
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
   const hotZones = useMatchupStore((s) => s.hotZones);
   const loading = useMatchupStore((s) => s.loadingHotZones);
+  const fetchHotZonesForPeriod = useMatchupStore((s) => s.fetchHotZonesForPeriod);
+
+  const handlePeriodChange = useCallback((value: string) => {
+    setPeriod(value);
+    fetchHotZonesForPeriod(value);
+  }, [fetchHotZonesForPeriod]);
 
   if (!panel) return null;
 
@@ -40,7 +46,7 @@ export function HotZonePanel() {
     >
       <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap' }}>
         <SegmentedControl options={METRIC_OPTIONS} value={metric} onChange={setMetric} />
-        <SegmentedControl options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />
+        <SegmentedControl options={PERIOD_OPTIONS} value={period} onChange={handlePeriodChange} />
       </div>
       {loading ? (
         <Spinner />

@@ -23,6 +23,14 @@ export function HotZoneCanvas({ zones, metric }: HotZoneCanvasProps) {
       const size = Math.min(width, height);
       sel.attr('width', size).attr('height', size);
 
+      // SVG defs for glow filter
+      const defs = sel.append('defs');
+      const glowFilter = defs.append('filter').attr('id', 'hotGlow');
+      glowFilter.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', '2').attr('result', 'blur');
+      const glowMerge = glowFilter.append('feMerge');
+      glowMerge.append('feMergeNode').attr('in', 'blur');
+      glowMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
       const colorScale = createDivergingScale();
       const rects = computeGridRects(size, size);
 
@@ -35,13 +43,21 @@ export function HotZoneCanvas({ zones, metric }: HotZoneCanvasProps) {
         const value = zoneMap.get(r.zone) ?? 0;
         const norm = normalizeValue(value, metric);
 
-        g.append('rect')
+        const cell = g.append('rect')
           .attr('x', r.x)
           .attr('y', r.y)
           .attr('width', r.width)
           .attr('height', r.height)
-          .attr('rx', 3)
+          .attr('rx', 6)
           .attr('fill', colorScale(norm));
+
+        // Glow and stroke for hot cells
+        if (norm > 0.65) {
+          cell.attr('filter', 'url(#hotGlow)');
+          cell.attr('stroke', 'rgba(178, 24, 43, 0.4)').attr('stroke-width', 1);
+        } else if (norm < 0.35) {
+          cell.attr('stroke', 'rgba(33, 102, 172, 0.3)').attr('stroke-width', 0.5);
+        }
 
         g.append('text')
           .attr('x', r.x + r.width / 2)

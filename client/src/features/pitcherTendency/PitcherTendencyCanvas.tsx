@@ -26,6 +26,14 @@ export function PitcherTendencyCanvas({
       const size = Math.min(width, height);
       sel.attr('width', size).attr('height', size);
 
+      // SVG defs for glow filter
+      const defs = sel.append('defs');
+      const glowFilter = defs.append('filter').attr('id', 'tendencyGlow');
+      glowFilter.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', '2').attr('result', 'blur');
+      const glowMerge = glowFilter.append('feMerge');
+      glowMerge.append('feMergeNode').attr('in', 'blur');
+      glowMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
       const rects = computeGridRects(size, size);
       const g = sel.append('g');
 
@@ -50,7 +58,7 @@ export function PitcherTendencyCanvas({
           .attr('y', r.y)
           .attr('width', r.width)
           .attr('height', r.height)
-          .attr('rx', 3)
+          .attr('rx', 6)
           .attr('fill', '#1a1a2a')
           .attr('stroke', '#2a2a3a')
           .attr('stroke-width', 0.5);
@@ -64,14 +72,22 @@ export function PitcherTendencyCanvas({
           if (!entry) return;
           const color = PITCH_COLORS[entry.pitchType] ?? '#9898a8';
           const opacity = Math.max(0.1, entry.frequency / maxFreq);
-          g.append('rect')
+          const freqPct = entry.frequency * 100;
+          const isHighFreq = freqPct > 50;
+
+          const cell = g.append('rect')
             .attr('x', r.x)
             .attr('y', r.y)
             .attr('width', r.width)
             .attr('height', r.height)
-            .attr('rx', 3)
+            .attr('rx', 6)
             .attr('fill', color)
             .attr('opacity', opacity);
+
+          if (isHighFreq) {
+            cell.attr('filter', 'url(#tendencyGlow)');
+            cell.attr('class', 'tendency-pulse');
+          }
 
           g.append('text')
             .attr('x', r.x + r.width / 2)
@@ -81,7 +97,7 @@ export function PitcherTendencyCanvas({
             .attr('font-size', `${Math.max(10, r.width * 0.2)}px`)
             .attr('font-weight', '600')
             .attr('fill', '#fff')
-            .text(`${(entry.frequency * 100).toFixed(0)}%`);
+            .text(`${freqPct.toFixed(0)}%`);
         } else {
           // Multiple pitch types: stacked horizontal bars
           const sorted = [...entries].sort((a, b) => b.frequency - a.frequency);

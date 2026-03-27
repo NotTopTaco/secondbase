@@ -1,11 +1,13 @@
 .panel {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(12, 21, 36, 0.95) 0%, rgba(8, 14, 26, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-md);
 }
 
 .header {
@@ -13,8 +15,9 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-tertiary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-left: 2px solid var(--mlb-red);
+  background: var(--gradient-panel-header);
   user-select: none;
 }
 
@@ -39,6 +42,7 @@
 .title {
   font-size: 14px;
   font-weight: 600;
+  font-family: var(--font-display);
   color: var(--text-primary);
   letter-spacing: 0.02em;
   text-transform: uppercase;
@@ -61,7 +65,7 @@
 
 .collapseBtn:hover {
   color: var(--text-primary);
-  background: var(--bg-primary);
+  background: rgba(191, 13, 62, 0.1);
 }
 
 .body {

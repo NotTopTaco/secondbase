@@ -57,6 +57,7 @@ export interface H2HData {
 
 export interface MatchupState {
   matchupKey: string | null;
+  batterId: number | null;
   hotZones: HotZoneCell[];
   tendencies: TendencyEntry[];
   batterVsPitch: BatterVsPitchRow[];
@@ -69,12 +70,14 @@ export interface MatchupState {
   loadingH2H: boolean;
   error: string | null;
   fetchAllForMatchup: (batterId: number, pitcherId: number) => Promise<void>;
+  fetchHotZonesForPeriod: (period: string) => Promise<void>;
   fetchBatterVsPitch: (batterId: number, params?: { pitcherHand?: string; season?: number }) => Promise<void>;
   clear: () => void;
 }
 
 export const useMatchupStore = create<MatchupState>((set, get) => ({
   matchupKey: null,
+  batterId: null,
   hotZones: [],
   tendencies: [],
   batterVsPitch: [],
@@ -93,6 +96,7 @@ export const useMatchupStore = create<MatchupState>((set, get) => ({
 
     set({
       matchupKey: key,
+      batterId,
       hotZones: [],
       tendencies: [],
       batterVsPitch: [],
@@ -163,6 +167,18 @@ export const useMatchupStore = create<MatchupState>((set, get) => ({
     }
   },
 
+  fetchHotZonesForPeriod: async (period) => {
+    const batterId = get().batterId;
+    if (!batterId) return;
+    set({ loadingHotZones: true });
+    try {
+      const data = await fetchHotZones(batterId, { period });
+      set({ hotZones: data, loadingHotZones: false });
+    } catch (e) {
+      set({ loadingHotZones: false, error: e instanceof Error ? e.message : 'Failed to fetch hot zones' });
+    }
+  },
+
   fetchBatterVsPitch: async (batterId, params) => {
     set({ loadingBatterVsPitch: true });
     try {
@@ -176,6 +192,7 @@ export const useMatchupStore = create<MatchupState>((set, get) => ({
   clear: () =>
     set({
       matchupKey: null,
+      batterId: null,
       hotZones: [],
       tendencies: [],
       batterVsPitch: [],

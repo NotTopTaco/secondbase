@@ -17,6 +17,7 @@
 .baseOccupied {
   fill: var(--warning);
   stroke: var(--warning);
+  filter: drop-shadow(0 0 3px var(--warning));
 }
 
 .outs {
@@ -36,4 +37,5 @@
 .outActive {
   background: var(--warning);
   border-color: var(--warning);
+  box-shadow: 0 0 6px rgba(243, 156, 18, 0.4);
 }

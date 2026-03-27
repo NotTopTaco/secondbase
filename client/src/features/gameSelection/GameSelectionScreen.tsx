@@ -45,6 +45,8 @@ export function GameSelectionScreen() {
         </p>
       </div>
 
+      <hr className={`stitchLine ${styles.stitching}`} />
+
       {loading && <Spinner />}
 
       {error && <p className={styles.error}>Failed to load schedule: {error}</p>}

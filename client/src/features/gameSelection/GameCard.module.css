@@ -1,28 +1,56 @@
 .card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--home-color, #4a9eff) 3%, rgba(12, 21, 36, 0.9)) 0%,
+      rgba(8, 14, 26, 0.9) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid;
+  border-image: linear-gradient(180deg, var(--away-color, #4a9eff), var(--home-color, #4a9eff)) 1;
   border-radius: var(--radius-lg);
   padding: var(--space-md) var(--space-lg);
   cursor: pointer;
-  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  transition: border-color var(--duration-fast), transform var(--duration-normal) var(--ease-out-expo), box-shadow var(--duration-normal);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-sm);
+  position: relative;
 }
 
 .card:hover {
-  border-color: var(--border-light);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+  border-left-color: var(--home-color, #4a9eff);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: var(--shadow-lg), 0 0 20px color-mix(in srgb, var(--home-color, #4a9eff) 20%, transparent);
 }
 
 .braves {
-  border-color: var(--accent);
-  box-shadow: 0 0 12px rgba(74, 158, 255, 0.15);
+  border-color: rgba(206, 17, 65, 0.3);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, #CE1141 5%, rgba(12, 21, 36, 0.9)) 0%,
+      rgba(8, 14, 26, 0.9) 100%);
+  box-shadow: var(--shadow-sm), 0 0 12px rgba(206, 17, 65, 0.15);
 }
 
 .braves:hover {
-  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.25);
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(206, 17, 65, 0.25);
+}
+
+.live {
+  overflow: hidden;
+}
+
+.live::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--success), transparent);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .topRow {
@@ -51,12 +79,13 @@
 }
 
 .score {
-  font-family: var(--font-mono);
-  font-size: 18px;
+  font-family: var(--font-display);
+  font-size: 20px;
   font-weight: 600;
   color: var(--text-primary);
   min-width: 24px;
   text-align: right;
+  text-shadow: 0 0 10px rgba(232, 232, 240, 0.2);
 }
 
 .record {

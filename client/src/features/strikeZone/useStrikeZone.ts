@@ -23,6 +23,19 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
 
       sel.attr('width', width).attr('height', height);
 
+      // SVG defs for glow filters and zone gradient
+      const defs = sel.append('defs');
+
+      const pitchGlow = defs.append('filter').attr('id', 'pitchGlow');
+      pitchGlow.append('feGaussianBlur').attr('in', 'SourceGraphic').attr('stdDeviation', '2').attr('result', 'blur');
+      const pitchMerge = pitchGlow.append('feMerge');
+      pitchMerge.append('feMergeNode').attr('in', 'blur');
+      pitchMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+      const zoneGrad = defs.append('radialGradient').attr('id', 'zoneGlow');
+      zoneGrad.append('stop').attr('offset', '0%').attr('stop-color', 'rgba(74, 158, 255, 0.06)');
+      zoneGrad.append('stop').attr('offset', '100%').attr('stop-color', 'rgba(74, 158, 255, 0.01)');
+
       const xScale = createXScale(width, MARGIN);
       const yScale = createYScale(height, MARGIN);
 
@@ -33,9 +46,9 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
         .attr('y', yScale(ZONE.top))
         .attr('width', xScale(ZONE.right) - xScale(ZONE.left))
         .attr('height', yScale(ZONE.bottom) - yScale(ZONE.top))
-        .attr('fill', 'none')
-        .attr('stroke', '#3a3a4a')
-        .attr('stroke-width', 1.5);
+        .attr('fill', 'url(#zoneGlow)')
+        .attr('stroke', 'rgba(74, 158, 255, 0.25)')
+        .attr('stroke-width', 2);
 
       // Draw inner grid (3x3)
       const xStep = (ZONE.right - ZONE.left) / 3;
@@ -48,7 +61,7 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
           .attr('x2', xScale(ZONE.left + i * xStep))
           .attr('y1', yScale(ZONE.top))
           .attr('y2', yScale(ZONE.bottom))
-          .attr('stroke', '#2a2a3a')
+          .attr('stroke', 'rgba(74, 158, 255, 0.08)')
           .attr('stroke-width', 0.5);
 
         sel
@@ -57,7 +70,7 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
           .attr('x2', xScale(ZONE.right))
           .attr('y1', yScale(ZONE.bottom + i * yStep))
           .attr('y2', yScale(ZONE.bottom + i * yStep))
-          .attr('stroke', '#2a2a3a')
+          .attr('stroke', 'rgba(74, 158, 255, 0.08)')
           .attr('stroke-width', 0.5);
       }
 
@@ -71,7 +84,7 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
           'points',
           `${plateX - plateW / 2},${plateY} ${plateX - plateW / 2},${plateY + 6} ${plateX},${plateY + 12} ${plateX + plateW / 2},${plateY + 6} ${plateX + plateW / 2},${plateY}`,
         )
-        .attr('fill', 'none')
+        .attr('fill', 'rgba(255, 255, 255, 0.08)')
         .attr('stroke', '#3a3a4a')
         .attr('stroke-width', 1);
 
@@ -79,14 +92,24 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
       const g = sel.append('g');
       const r = 8;
 
-      pitches.forEach((p) => {
+      pitches.forEach((p, i) => {
         if (p.pX == null || p.pZ == null || isNaN(p.pX) || isNaN(p.pZ)) return;
         const cx = xScale(p.pX);
         const cy = yScale(p.pZ);
         const color = PITCH_COLORS[p.type] ?? '#9898a8';
         const shape = pitchShape(p.isStrike, p.isBall, p.isInPlay);
 
-        const pitchG = g.append('g').style('cursor', 'pointer');
+        const pitchG = g.append('g')
+          .style('cursor', 'pointer')
+          .attr('filter', 'url(#pitchGlow)')
+          .style('opacity', '0');
+
+        // Staggered entrance animation
+        pitchG
+          .transition()
+          .delay(i * 30)
+          .duration(300)
+          .style('opacity', '1');
 
         if (shape === 'diamond') {
           pitchG
@@ -99,6 +122,12 @@ export function useStrikeZone({ pitches, onTooltip }: UseStrikeZoneOptions) {
             .attr('fill', color)
             .attr('opacity', 0.85);
         } else if (shape === 'open') {
+          pitchG
+            .append('circle')
+            .attr('cx', cx)
+            .attr('cy', cy)
+            .attr('r', r)
+            .attr('fill', 'transparent');
           pitchG
             .append('circle')
             .attr('cx', cx)

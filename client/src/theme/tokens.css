@@ -1,8 +1,9 @@
 :root {
   /* Backgrounds */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #141420;
-  --bg-tertiary: #1e1e30;
+  --bg-primary: #050a12;
+  --bg-secondary: #0c1524;
+  --bg-tertiary: #132038;
+  --bg-elevated: #1a2d4a;
 
   /* Text */
   --text-primary: #e8e8f0;
@@ -12,6 +13,9 @@
   /* Accent */
   --accent: #4a9eff;
   --accent-hover: #6ab4ff;
+  --accent-warm: #ff6b4a;
+  --accent-glow: rgba(74, 158, 255, 0.25);
+  --border-glow: 0 0 8px rgba(74, 158, 255, 0.3);
 
   /* Semantic */
   --danger: #e74c3c;
@@ -19,8 +23,30 @@
   --warning: #f39c12;
 
   /* Borders */
-  --border: #2a2a3a;
-  --border-light: #3a3a4a;
+  --border: #1e2d42;
+  --border-light: #2a3d55;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 16px rgba(74, 158, 255, 0.15);
+
+  /* MLB identity */
+  --mlb-navy: #041E42;
+  --mlb-red: #BF0D3E;
+  --mlb-red-glow: rgba(191, 13, 62, 0.3);
+  --scoreboard-bg: linear-gradient(180deg, #0a1628 0%, #061020 100%);
+
+  /* Gradients */
+  --gradient-bar: linear-gradient(180deg, #0a1628 0%, #061020 100%);
+  --gradient-panel-header: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+
+  /* Animation */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
 
   /* Pitch type colors */
   --pitch-FF: #e74c3c;
@@ -50,6 +76,7 @@
 
   /* Fonts */
   --font-body: 'Inter', sans-serif;
+  --font-display: 'Oswald', 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   /* Panel sizing */

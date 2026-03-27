@@ -2,7 +2,9 @@ import { useGameStore } from '../../stores/gameStore';
 import { usePollingStore } from '../../stores/pollingStore';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { PlayerPhoto } from '../../components/ui/PlayerPhoto';
+import { TeamLogo } from '../../components/ui/TeamLogo';
 import { DiamondRunners } from '../../components/ui/DiamondRunners';
+import { getTeamColors } from '../../theme/teamColors';
 import styles from './GameStateBar.module.css';
 
 function getStatusLabel(status: string): 'Live' | 'Preview' | 'Final' | 'Delayed' {
@@ -33,21 +35,34 @@ export function GameStateBar() {
   const setDelayOffset = usePollingStore((s) => s.setDelayOffset);
 
   const statusLabel = getStatusLabel(status);
+  const awayColors = getTeamColors(awayTeam?.id);
+  const homeColors = getTeamColors(homeTeam?.id);
 
   return (
-    <div className={styles.bar}>
+    <div
+      className={styles.bar}
+      style={{
+        '--away-color': awayColors.primary,
+        '--home-color': homeColors.primary,
+      } as React.CSSProperties}
+    >
       {/* Left: Scores */}
       <div className={styles.section}>
         <div className={styles.scoreBlock}>
-          <span className={styles.teamAbbr}>
-            {awayTeam?.abbreviation ?? awayTeam?.name?.slice(0, 3).toUpperCase() ?? 'AWAY'}
-          </span>
-          <span className={styles.runs}>{awayTeam?.runs ?? 0}</span>
-          <span className={styles.divider}>-</span>
-          <span className={styles.runs}>{homeTeam?.runs ?? 0}</span>
-          <span className={styles.teamAbbr}>
-            {homeTeam?.abbreviation ?? homeTeam?.name?.slice(0, 3).toUpperCase() ?? 'HOME'}
-          </span>
+          <div className={styles.scoreRow}>
+            <TeamLogo teamId={awayTeam?.id ?? 0} abbreviation={awayTeam?.abbreviation} size={20} />
+            <span className={styles.teamAbbr} style={{ color: awayColors.primary }}>
+              {awayTeam?.abbreviation ?? awayTeam?.name?.slice(0, 3).toUpperCase() ?? 'AWAY'}
+            </span>
+            <span className={styles.runs}>{awayTeam?.runs ?? 0}</span>
+          </div>
+          <div className={styles.scoreRow}>
+            <TeamLogo teamId={homeTeam?.id ?? 0} abbreviation={homeTeam?.abbreviation} size={20} />
+            <span className={styles.teamAbbr} style={{ color: homeColors.primary }}>
+              {homeTeam?.abbreviation ?? homeTeam?.name?.slice(0, 3).toUpperCase() ?? 'HOME'}
+            </span>
+            <span className={styles.runs}>{homeTeam?.runs ?? 0}</span>
+          </div>
         </div>
         <StatusBadge status={statusLabel} />
       </div>

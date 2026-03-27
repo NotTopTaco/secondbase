@@ -37,11 +37,23 @@ export function SprayChartCanvas({ hits }: SprayChartCanvasProps) {
         .attr('height', size)
         .attr('viewBox', `0 0 ${FIELD.width} ${FIELD.height}`);
 
+      // SVG defs for gradients and glow
+      const defs = sel.append('defs');
+
+      const grassGrad = defs.append('radialGradient').attr('id', 'grassGrad');
+      grassGrad.append('stop').attr('offset', '0%').attr('stop-color', '#152415');
+      grassGrad.append('stop').attr('offset', '100%').attr('stop-color', '#0a180a');
+
+      const dirtGrad = defs.append('radialGradient').attr('id', 'dirtGrad');
+      dirtGrad.append('stop').attr('offset', '0%').attr('stop-color', '#231808');
+      dirtGrad.append('stop').attr('offset', '100%').attr('stop-color', '#160e05');
+
+
       // Field outline
       sel
         .append('path')
         .attr('d', fieldOutlinePath())
-        .attr('fill', '#0d1a0d')
+        .attr('fill', 'url(#grassGrad)')
         .attr('stroke', '#2a4a2a')
         .attr('stroke-width', 1);
 
@@ -49,17 +61,17 @@ export function SprayChartCanvas({ hits }: SprayChartCanvasProps) {
       sel
         .append('path')
         .attr('d', infieldPath())
-        .attr('fill', '#1a1208')
+        .attr('fill', 'url(#dirtGrad)')
         .attr('stroke', '#3a3020')
         .attr('stroke-width', 0.5);
 
-      // Home plate
+      // Home plate diamond
+      const hx = FIELD.homeX;
+      const hy = FIELD.homeY;
       sel
-        .append('circle')
-        .attr('cx', FIELD.homeX)
-        .attr('cy', FIELD.homeY)
-        .attr('r', 2)
-        .attr('fill', '#fff');
+        .append('polygon')
+        .attr('points', `${hx},${hy - 3} ${hx + 3},${hy} ${hx},${hy + 3} ${hx - 3},${hy}`)
+        .attr('fill', 'rgba(255, 255, 255, 0.8)');
 
       // Plot hits
       const rScale = exitVeloRadius();

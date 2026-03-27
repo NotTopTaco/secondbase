@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import type { ScheduleGame } from '../../api/gameApi';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { TeamLogo } from '../../components/ui/TeamLogo';
+import { getTeamColors } from '../../theme/teamColors';
 import styles from './GameCard.module.css';
 
 interface GameCardProps {
@@ -30,6 +32,9 @@ export function GameCard({ game }: GameCardProps) {
   const showScores = isLive || isFinal;
   const statusLabel = getStatusLabel(game.status.abstractGameState);
 
+  const awayColors = getTeamColors(away.team.id);
+  const homeColors = getTeamColors(home.team.id);
+
   const gameTime = new Date(game.gameDate).toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -37,17 +42,22 @@ export function GameCard({ game }: GameCardProps) {
 
   return (
     <div
-      className={`${styles.card} ${isBraves ? styles.braves : ''}`}
+      className={`${styles.card} ${isBraves ? styles.braves : ''} ${isLive ? styles.live : ''}`}
       onClick={() => navigate(`/game/${game.gamePk}`)}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter') navigate(`/game/${game.gamePk}`);
       }}
+      style={{
+        '--away-color': awayColors.primary,
+        '--home-color': homeColors.primary,
+      } as React.CSSProperties}
     >
       <div className={styles.topRow}>
         <div className={styles.teams}>
           <div className={styles.teamRow}>
+            <TeamLogo teamId={away.team.id} abbreviation={away.team.abbreviation} size={24} />
             <span className={styles.teamName}>{away.team.name}</span>
             {showScores && <span className={styles.score}>{away.score ?? 0}</span>}
             {away.leagueRecord && (
@@ -57,7 +67,7 @@ export function GameCard({ game }: GameCardProps) {
             )}
           </div>
           <div className={styles.teamRow}>
-            <span className={styles.at}>@</span>
+            <TeamLogo teamId={home.team.id} abbreviation={home.team.abbreviation} size={24} />
             <span className={styles.teamName}>{home.team.name}</span>
             {showScores && <span className={styles.score}>{home.score ?? 0}</span>}
             {home.leagueRecord && (
