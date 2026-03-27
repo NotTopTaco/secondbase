@@ -1,15 +1,10 @@
 import { getDb } from '../db/connection.js';
 import { fetchPlayer } from '../mlb/mlbClient.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import type { Player, HotZone, PitcherTendency, BatterVsPitchType, SprayChartEntry } from '../types/player.js';
 
-let _latestSeason: number | null = null;
-
 function getLatestSeason(): number {
-  if (_latestSeason) return _latestSeason;
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM batter_hot_zones').get() as { s: number | null } | undefined;
-  _latestSeason = row?.s || new Date().getFullYear();
-  return _latestSeason;
+  return getLatestSeasonFor('batter_hot_zones');
 }
 
 export function getPlayer(playerId: number): Player | null {

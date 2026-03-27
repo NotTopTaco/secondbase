@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { fetchHotZones, fetchTendencies, fetchVsPitchType, fetchSprayChart } from '../api/playerApi';
 import { fetchMatchup } from '../api/matchupApi';
+import type { BatterBundleData, PitcherBundleData } from '../api/playerApi';
 
 export interface HotZoneCell {
   zone: number;
@@ -74,6 +75,7 @@ export interface MatchupState {
   fetchAllForMatchup: (batterId: number, pitcherId: number) => Promise<void>;
   fetchHotZonesForPeriod: (period: string) => Promise<void>;
   fetchBatterVsPitch: (batterId: number, params?: { pitcherHand?: string; season?: number }) => Promise<void>;
+  setBundleData: (batterBundle: BatterBundleData, pitcherBundle: PitcherBundleData) => void;
   clear: () => void;
 }
 
@@ -189,6 +191,22 @@ export const useMatchupStore = create<MatchupState>((set, get) => ({
     } catch (e) {
       set({ loadingBatterVsPitch: false, error: e instanceof Error ? e.message : 'Failed to fetch batter vs pitch type' });
     }
+  },
+
+  setBundleData: (batterBundle, pitcherBundle) => {
+    set({
+      hotZones: batterBundle.hotZones,
+      tendencies: pitcherBundle.tendencies,
+      batterVsPitch: batterBundle.batterVsPitch,
+      sprayChart: batterBundle.sprayChart,
+      h2h: batterBundle.h2h,
+      loadingHotZones: false,
+      loadingTendencies: false,
+      loadingBatterVsPitch: false,
+      loadingSprayChart: false,
+      loadingH2H: false,
+      error: null,
+    });
   },
 
   clear: () =>

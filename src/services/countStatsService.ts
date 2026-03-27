@@ -1,10 +1,9 @@
 import { getDb } from '../db/connection.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import type { CountStatsResponse, BatterCountStat } from '../types/analytics.js';
 
 function getLatestSeason(): number {
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM batter_count_stats').get() as { s: number | null } | undefined;
-  return row?.s || new Date().getFullYear();
+  return getLatestSeasonFor('batter_count_stats');
 }
 
 export function getCountStats(playerId: number, season?: number): CountStatsResponse {

@@ -1,5 +1,6 @@
 import { getLiveFeed } from './gameService.js';
 import { getDb } from '../db/connection.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import type { VelocityResponse, VelocityDataPoint } from '../types/analytics.js';
 
 export async function getVelocityData(gamePk: number): Promise<VelocityResponse> {
@@ -32,8 +33,7 @@ export async function getVelocityData(gamePk: number): Promise<VelocityResponse>
 
   // Get season averages from pitcher_tendencies
   const db = getDb();
-  const seasonRow = db.prepare('SELECT MAX(season) as s FROM pitcher_tendencies').get() as { s: number } | undefined;
-  const season = seasonRow?.s || new Date().getFullYear();
+  const season = getLatestSeasonFor('pitcher_tendencies');
 
   const tendencies = db.prepare(
     `SELECT pitch_type, avg_velocity FROM pitcher_tendencies

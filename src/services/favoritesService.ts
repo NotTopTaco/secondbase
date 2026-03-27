@@ -35,16 +35,22 @@ export function removeFavoritePlayer(userId: number, playerId: number): void {
 
 export function getUserWithFavorites(userId: number): AuthenticatedUser | null {
   const db = getDb();
-  const user = db.prepare('SELECT id, username FROM users WHERE id = ?').get(userId) as { id: number; username: string } | undefined;
-  if (!user) return null;
-
-  const teamIds = getFavoriteTeams(userId);
-  const playerIds = getFavoritePlayers(userId);
+  const row = db.prepare(
+    `SELECT u.id, u.username,
+            GROUP_CONCAT(DISTINCT ft.team_id) AS team_ids,
+            GROUP_CONCAT(DISTINCT fp.player_id) AS player_ids
+     FROM users u
+     LEFT JOIN user_favorite_teams ft ON ft.user_id = u.id
+     LEFT JOIN user_favorite_players fp ON fp.user_id = u.id
+     WHERE u.id = ?
+     GROUP BY u.id`
+  ).get(userId) as { id: number; username: string; team_ids: string | null; player_ids: string | null } | undefined;
+  if (!row) return null;
 
   return {
-    id: user.id,
-    username: user.username,
-    favoriteTeamIds: teamIds,
-    favoritePlayerIds: playerIds,
+    id: row.id,
+    username: row.username,
+    favoriteTeamIds: row.team_ids ? row.team_ids.split(',').map(Number) : [],
+    favoritePlayerIds: row.player_ids ? row.player_ids.split(',').map(Number) : [],
   };
 }

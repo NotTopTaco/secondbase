@@ -1,6 +1,7 @@
 import { fetchBoxscore } from '../mlb/mlbClient.js';
 import { getLiveFeed } from './gameService.js';
 import { getDb } from '../db/connection.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import { cacheGet, cacheSet } from '../cache/cache.js';
 import type { DefensivePositioningResponse, FielderPosition, DefensiveAlignmentSummary } from '../types/defensivePositioning.js';
 import type { MlbBoxscore, MlbBoxscorePlayer } from '../mlb/mlbTypes.js';
@@ -25,9 +26,7 @@ const POSITION_ALIASES: Record<string, string> = {
 };
 
 function getLatestSeason(): number {
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM batter_defensive_alignment').get() as { s: number | null } | undefined;
-  return row?.s || new Date().getFullYear();
+  return getLatestSeasonFor('batter_defensive_alignment');
 }
 
 function getAlignment(batterId: number, season?: number): DefensiveAlignmentSummary | null {

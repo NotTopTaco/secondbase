@@ -4,6 +4,40 @@ import type { MatchupResponse, MatchupAtBat, MatchupSummary } from '../types/mat
 export function getMatchupHistory(batterId: number, pitcherId: number): MatchupResponse {
   const db = getDb();
 
+  // Aggregate summary in SQL instead of iterating rows in JS
+  const agg = db.prepare(
+    `SELECT
+       COUNT(*) AS total_pa,
+       SUM(CASE WHEN LOWER(result) NOT LIKE '%walk%'
+                 AND LOWER(result) NOT LIKE '%hit by pitch%'
+                 AND LOWER(result) NOT LIKE '%sac fly%'
+                 AND LOWER(result) NOT LIKE '%sac bunt%' THEN 1 ELSE 0 END) AS ab_count,
+       SUM(CASE WHEN LOWER(result) LIKE '%single%' OR LOWER(result) LIKE '%double%'
+                 OR LOWER(result) LIKE '%triple%' OR LOWER(result) LIKE '%home run%' THEN 1 ELSE 0 END) AS hits,
+       SUM(CASE WHEN LOWER(result) LIKE '%single%' THEN 1
+                 WHEN LOWER(result) LIKE '%double%' THEN 2
+                 WHEN LOWER(result) LIKE '%triple%' THEN 3
+                 WHEN LOWER(result) LIKE '%home run%' THEN 4 ELSE 0 END) AS total_bases,
+       SUM(CASE WHEN LOWER(result) LIKE '%strikeout%' THEN 1 ELSE 0 END) AS strikeouts,
+       SUM(CASE WHEN LOWER(result) LIKE '%walk%' OR LOWER(result) LIKE '%hit by pitch%' THEN 1 ELSE 0 END) AS walks
+     FROM matchup_history
+     WHERE batter_id = ? AND pitcher_id = ?`
+  ).get(batterId, pitcherId) as {
+    total_pa: number; ab_count: number; hits: number;
+    total_bases: number; strikeouts: number; walks: number;
+  };
+
+  if (agg.total_pa === 0) {
+    return {
+      summary: {
+        batter_id: batterId, pitcher_id: pitcherId,
+        total_pa: 0, ba: null, slg: null, k_pct: null, bb_pct: null,
+      },
+      at_bats: [],
+    };
+  }
+
+  // Detail query for the at-bat list
   const atBats = db.prepare(
     `SELECT game_date, at_bat_number, pitch_sequence, result, exit_velo, launch_angle
      FROM matchup_history
@@ -11,51 +45,14 @@ export function getMatchupHistory(batterId: number, pitcherId: number): MatchupR
      ORDER BY game_date DESC, at_bat_number DESC`
   ).all(batterId, pitcherId) as MatchupAtBat[];
 
-  const totalPa = atBats.length;
-
-  if (totalPa === 0) {
-    return {
-      summary: {
-        batter_id: batterId,
-        pitcher_id: pitcherId,
-        total_pa: 0,
-        ba: null,
-        slg: null,
-        k_pct: null,
-        bb_pct: null,
-      },
-      at_bats: [],
-    };
-  }
-
-  // Compute summary stats from at-bat results
-  let hits = 0, totalBases = 0, strikeouts = 0, walks = 0, atBatCount = 0;
-
-  for (const ab of atBats) {
-    const r = ab.result?.toLowerCase() || '';
-    const isWalk = r.includes('walk') || r.includes('hit by pitch');
-    const isSac = r.includes('sac fly') || r.includes('sac bunt');
-
-    if (isWalk) { walks++; continue; }
-    if (isSac) continue;
-
-    atBatCount++;
-    if (r.includes('strikeout')) { strikeouts++; continue; }
-
-    if (r.includes('single')) { hits++; totalBases += 1; }
-    else if (r.includes('double')) { hits++; totalBases += 2; }
-    else if (r.includes('triple')) { hits++; totalBases += 3; }
-    else if (r.includes('home run')) { hits++; totalBases += 4; }
-  }
-
   const summary: MatchupSummary = {
     batter_id: batterId,
     pitcher_id: pitcherId,
-    total_pa: totalPa,
-    ba: atBatCount > 0 ? hits / atBatCount : null,
-    slg: atBatCount > 0 ? totalBases / atBatCount : null,
-    k_pct: totalPa > 0 ? strikeouts / totalPa : null,
-    bb_pct: totalPa > 0 ? walks / totalPa : null,
+    total_pa: agg.total_pa,
+    ba: agg.ab_count > 0 ? agg.hits / agg.ab_count : null,
+    slg: agg.ab_count > 0 ? agg.total_bases / agg.ab_count : null,
+    k_pct: agg.total_pa > 0 ? agg.strikeouts / agg.total_pa : null,
+    bb_pct: agg.total_pa > 0 ? agg.walks / agg.total_pa : null,
   };
 
   return { summary, at_bats: atBats };

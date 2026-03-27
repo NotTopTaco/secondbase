@@ -1,5 +1,6 @@
 import { getDb } from '../db/connection.js';
 import { fetchBoxscore } from '../mlb/mlbClient.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import { cacheGet, cacheSet } from '../cache/cache.js';
 import type { UmpireResponse } from '../types/analytics.js';
 
@@ -28,8 +29,7 @@ export async function getUmpireData(gamePk: number): Promise<UmpireResponse> {
   }
 
   const db = getDb();
-  const seasonRow = db.prepare('SELECT MAX(season) as s FROM umpire_stats').get() as { s: number } | undefined;
-  const season = seasonRow?.s || new Date().getFullYear();
+  const season = getLatestSeasonFor('umpire_stats');
 
   // Try to find umpire by ID first, fall back to game_pk-based data
   const zones = db.prepare(

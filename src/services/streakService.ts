@@ -1,4 +1,5 @@
 import { getDb } from '../db/connection.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import type { StreakResponse } from '../types/analytics.js';
 
 interface BatterGameRow {
@@ -37,15 +38,11 @@ function safeDivide(num: number, den: number): number | null {
 }
 
 function getLatestBatterSeason(): number {
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM batter_game_stats').get() as { s: number | null } | undefined;
-  return row?.s || new Date().getFullYear();
+  return getLatestSeasonFor('batter_game_stats');
 }
 
 function getLatestPitcherSeason(): number {
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM pitcher_game_stats').get() as { s: number | null } | undefined;
-  return row?.s || new Date().getFullYear();
+  return getLatestSeasonFor('pitcher_game_stats');
 }
 
 function computeWindow(rows: BatterGameRow[]) {
@@ -124,19 +121,25 @@ function getPitcherStreak(playerId: number, season?: number) {
   const db = getDb();
   const s = season || getLatestPitcherSeason();
 
-  const recentRows = db.prepare(
-    'SELECT * FROM pitcher_game_stats WHERE player_id = ? AND season = ? ORDER BY game_date DESC LIMIT 5'
-  ).all(playerId, s) as PitcherGameRow[];
+  // Single query: CTE computes row numbers + season average in one pass
+  const rows = db.prepare(
+    `WITH stats AS (
+       SELECT *, ROW_NUMBER() OVER (ORDER BY game_date DESC) AS rn
+       FROM pitcher_game_stats WHERE player_id = ? AND season = ?
+     ),
+     season_avg AS (
+       SELECT AVG(game_score) AS avg_gs FROM stats WHERE game_score IS NOT NULL
+     )
+     SELECT s.*, sa.avg_gs AS season_avg_game_score
+     FROM stats s, season_avg sa
+     WHERE s.rn <= 5
+     ORDER BY s.game_date DESC`
+  ).all(playerId, s) as Array<PitcherGameRow & { season_avg_game_score: number | null }>;
 
-  const allRows = db.prepare(
-    'SELECT game_score FROM pitcher_game_stats WHERE player_id = ? AND season = ?'
-  ).all(playerId, s) as Array<{ game_score: number | null }>;
-
-  const scores = allRows.map(r => r.game_score).filter((v): v is number => v != null);
-  const seasonAvgGameScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : null;
+  const seasonAvgGameScore = rows.length > 0 ? rows[0].season_avg_game_score : null;
 
   return {
-    recentStarts: recentRows.map(r => ({
+    recentStarts: rows.map(r => ({
       gameDate: r.game_date,
       gameScore: r.game_score,
       outsRecorded: r.outs_recorded,

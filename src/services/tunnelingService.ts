@@ -1,4 +1,5 @@
 import { getDb } from '../db/connection.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import type { PitchTunnelingResponse, TunnelPair } from '../types/analytics.js';
 
 interface TunnelRow {
@@ -29,9 +30,7 @@ interface TunnelRow {
 }
 
 function getLatestSeason(): number {
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM pitch_tunneling').get() as { s: number | null } | undefined;
-  return row?.s || new Date().getFullYear();
+  return getLatestSeasonFor('pitch_tunneling');
 }
 
 export function getPitchTunneling(playerId: number, season?: number): PitchTunnelingResponse {

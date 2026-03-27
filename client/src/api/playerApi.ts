@@ -1,5 +1,5 @@
 import { apiFetch } from './client';
-import type { HotZoneCell, TendencyEntry, BatterVsPitchRow, SprayChartHit } from '../stores/matchupStore';
+import type { HotZoneCell, TendencyEntry, BatterVsPitchRow, SprayChartHit, H2HData } from '../stores/matchupStore';
 import type { CountStatRow, TTOSplitRow, PitchMovementPoint } from '../stores/analyticsDataStore';
 
 export interface PlayerInfo {
@@ -237,4 +237,104 @@ export async function fetchStreak(
   return apiFetch<StreakData>(
     `/players/${batterId}/streak${qs ? `?${qs}` : ''}`
   );
+}
+
+// --- Bundle types & fetchers ---
+
+export interface BatterBundleData {
+  hotZones: HotZoneCell[];
+  batterVsPitch: BatterVsPitchRow[];
+  sprayChart: SprayChartHit[];
+  h2h: H2HData;
+  countStats: CountStatRow[];
+  streak: StreakData;
+}
+
+export interface PitcherBundleData {
+  tendencies: TendencyEntry[];
+  ttoSplits: TTOSplitRow[];
+  pitchMovement: { pitcher: PitchMovementPoint[]; leagueAvg: PitchMovementPoint[] };
+  pitchTunneling: PitchTunnelingData;
+}
+
+interface RawBatterBundle {
+  hotZones: Array<{ zone_id: number; woba: number | null; ba: number | null; slg: number | null; sample_size: number }>;
+  batterVsPitch: Array<{ pitch_type: string; pa: number; ba: number | null; slg: number | null; woba: number | null; whiff_pct: number | null; avg_exit_velo: number | null; avg_launch_angle: number | null }>;
+  sprayChart: Array<{ hc_x: number | null; hc_y: number | null; exit_velo: number | null; launch_angle: number | null; result: string | null; pitch_type: string | null; pitcher_hand: string | null; game_date: string | null }>;
+  matchup: {
+    summary: { batter_id: number; pitcher_id: number; total_pa: number; ba: number | null; slg: number | null; k_pct: number | null; bb_pct: number | null };
+    at_bats: Array<{ game_date: string | null; at_bat_number: number; pitch_sequence: string | null; result: string | null; exit_velo: number | null; launch_angle: number | null }>;
+  };
+  countStats: { counts: CountStatRow[] };
+  streak: StreakData;
+}
+
+interface RawPitcherBundle {
+  tendencies: Array<{ pitch_type: string; batter_hand: string; usage_pct: number | null; avg_velocity: number | null; zone_distribution: string | null }>;
+  ttoSplits: { splits: TTOSplitRow[] };
+  pitchMovement: { pitcher: PitchMovementPoint[]; leagueAvg: PitchMovementPoint[] };
+  pitchTunneling: PitchTunnelingData;
+}
+
+export async function fetchBatterBundle(batterId: number, pitcherId: number): Promise<BatterBundleData> {
+  const raw = await apiFetch<RawBatterBundle>(`/players/${batterId}/batter-bundle?pitcherId=${pitcherId}`);
+
+  return {
+    hotZones: raw.hotZones.map(r => ({
+      zone: r.zone_id, woba: r.woba ?? 0, ba: r.ba ?? 0, slg: r.slg ?? 0, sampleSize: r.sample_size,
+    })),
+    batterVsPitch: raw.batterVsPitch.map(r => ({
+      pitchType: r.pitch_type, pa: r.pa, ba: r.ba ?? 0, slg: r.slg ?? 0,
+      wOBA: r.woba ?? 0, whiffPct: (r.whiff_pct ?? 0) * 100,
+      exitVelo: r.avg_exit_velo ?? 0, launchAngle: r.avg_launch_angle ?? 0,
+    })),
+    sprayChart: raw.sprayChart
+      .filter(r => r.hc_x != null && r.hc_y != null)
+      .map(r => ({
+        coordX: r.hc_x!, coordY: r.hc_y!, exitVelo: r.exit_velo ?? 0,
+        launchAngle: r.launch_angle ?? 0, result: r.result ?? 'out',
+        pitchType: r.pitch_type ?? '', pitcherHand: r.pitcher_hand ?? '', date: r.game_date ?? '',
+      })),
+    h2h: {
+      totalPA: raw.matchup.summary.total_pa,
+      ba: raw.matchup.summary.ba ?? 0,
+      slg: raw.matchup.summary.slg ?? 0,
+      kPct: (raw.matchup.summary.k_pct ?? 0) * 100,
+      bbPct: (raw.matchup.summary.bb_pct ?? 0) * 100,
+      atBats: raw.matchup.at_bats.map(ab => ({
+        date: ab.game_date ?? '',
+        pitchCount: ab.pitch_sequence ? JSON.parse(ab.pitch_sequence).length : 0,
+        pitchSequence: ab.pitch_sequence ? JSON.parse(ab.pitch_sequence).map((p: { pitch_type?: string }) => p.pitch_type ?? '?') : [],
+        result: ab.result ?? '',
+      })),
+    },
+    countStats: raw.countStats.counts,
+    streak: raw.streak,
+  };
+}
+
+export async function fetchPitcherBundle(pitcherId: number): Promise<PitcherBundleData> {
+  const raw = await apiFetch<RawPitcherBundle>(`/players/${pitcherId}/pitcher-bundle`);
+
+  const tendencies: TendencyEntry[] = [];
+  for (const r of raw.tendencies) {
+    if (r.zone_distribution) {
+      try {
+        const dist = JSON.parse(r.zone_distribution) as Record<string, number>;
+        for (const [zone, freq] of Object.entries(dist)) {
+          tendencies.push({
+            pitchType: r.pitch_type, zone: parseInt(zone, 10), frequency: freq / 100,
+            usagePct: r.usage_pct ?? 0, avgVelocity: r.avg_velocity, batterHand: r.batter_hand,
+          });
+        }
+      } catch { /* skip malformed */ }
+    }
+  }
+
+  return {
+    tendencies,
+    ttoSplits: raw.ttoSplits.splits,
+    pitchMovement: raw.pitchMovement,
+    pitchTunneling: raw.pitchTunneling,
+  };
 }

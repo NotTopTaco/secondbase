@@ -12,6 +12,7 @@ import { getPitchMovement } from '../services/pitchMovementService.js';
 import { getCountStats } from '../services/countStatsService.js';
 import { getStreak } from '../services/streakService.js';
 import { getPitchTunneling } from '../services/tunnelingService.js';
+import { getMatchupHistory } from '../services/matchupService.js';
 
 export const playersRouter = Router();
 
@@ -109,4 +110,40 @@ playersRouter.get('/:id/pitch-tunneling', (req, res) => {
 
   const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
   res.json(getPitchTunneling(id, season));
+});
+
+// Bundle endpoints: combine multiple data fetches into single HTTP requests
+
+playersRouter.get('/:id/batter-bundle', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const pitcherId = parseInt(req.query.pitcherId as string, 10);
+  if (isNaN(id) || isNaN(pitcherId)) {
+    res.status(400).json({ error: 'Invalid player ID or pitcherId' });
+    return;
+  }
+  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+
+  res.json({
+    hotZones: getHotZones(id, season),
+    batterVsPitch: getBatterVsPitchType(id, season),
+    sprayChart: getSprayChart(id, season),
+    matchup: getMatchupHistory(id, pitcherId),
+    countStats: getCountStats(id, season),
+    streak: getStreak(id, pitcherId, season),
+  });
+});
+
+playersRouter.get('/:id/pitcher-bundle', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
+
+  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+  const batterHand = req.query.batterHand as string | undefined;
+
+  res.json({
+    tendencies: getPitcherTendencies(id, season, batterHand),
+    ttoSplits: getTTOSplits(id, season),
+    pitchMovement: getPitchMovement(id, season),
+    pitchTunneling: getPitchTunneling(id, season),
+  });
 });

@@ -1,13 +1,12 @@
 import { getDb } from '../db/connection.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import type { PitcherCountTendency, NextPitchResponse, NextPitchPrediction } from '../types/analytics.js';
 
 // In-memory accuracy tracking per game (resets on server restart)
 const accuracyMap = new Map<number, { correct: number; total: number; lastPrediction: string | null }>();
 
 function getLatestSeason(): number {
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM pitcher_count_tendencies').get() as { s: number | null } | undefined;
-  return row?.s || new Date().getFullYear();
+  return getLatestSeasonFor('pitcher_count_tendencies');
 }
 
 const BAYESIAN_PRIOR_WEIGHT = 20;

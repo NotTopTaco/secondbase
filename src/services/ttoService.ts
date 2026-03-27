@@ -1,10 +1,9 @@
 import { getDb } from '../db/connection.js';
+import { getLatestSeasonFor } from './seasonCache.js';
 import type { TTOSplitResponse, PitcherTTOSplit } from '../types/analytics.js';
 
 function getLatestSeason(): number {
-  const db = getDb();
-  const row = db.prepare('SELECT MAX(season) as s FROM pitcher_tto_splits').get() as { s: number | null } | undefined;
-  return row?.s || new Date().getFullYear();
+  return getLatestSeasonFor('pitcher_tto_splits');
 }
 
 export function getTTOSplits(playerId: number, season?: number): TTOSplitResponse {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchBatterCountStats, fetchTTOSplits, fetchPitchMovement, fetchStreak, fetchPitchTunneling, type StreakData, type PitchTunnelingData } from '../api/playerApi';
+import { fetchBatterCountStats, fetchTTOSplits, fetchPitchMovement, fetchStreak, fetchPitchTunneling, type StreakData, type PitchTunnelingData, type BatterBundleData, type PitcherBundleData } from '../api/playerApi';
 
 export interface CountStatRow {
   balls: number;
@@ -44,6 +44,7 @@ export interface AnalyticsDataState {
   loadingTunneling: boolean;
   error: string | null;
   fetchAllP1Data: (batterId: number, pitcherId: number) => Promise<void>;
+  setBundleData: (batterBundle: BatterBundleData, pitcherBundle: PitcherBundleData) => void;
   clear: () => void;
 }
 
@@ -124,6 +125,22 @@ export const useAnalyticsDataStore = create<AnalyticsDataState>((set) => ({
     if (errors.length > 0) {
       set({ error: errors.join('; ') });
     }
+  },
+
+  setBundleData: (batterBundle, pitcherBundle) => {
+    set({
+      batterCountStats: batterBundle.countStats,
+      pitcherTTOSplits: pitcherBundle.ttoSplits,
+      pitchMovement: pitcherBundle.pitchMovement,
+      streakData: batterBundle.streak,
+      pitchTunneling: pitcherBundle.pitchTunneling,
+      loadingCountStats: false,
+      loadingTTOSplits: false,
+      loadingPitchMovement: false,
+      loadingStreak: false,
+      loadingTunneling: false,
+      error: null,
+    });
   },
 
   clear: () =>
