@@ -4,6 +4,7 @@ import { getWinProbability } from '../services/winProbabilityService.js';
 import { getVelocityData } from '../services/velocityService.js';
 import { getUmpireData } from '../services/umpireService.js';
 import { getBullpenStatus } from '../services/bullpenService.js';
+import { getDefensivePositioning } from '../services/defensivePositioningService.js';
 
 export const gameAnalyticsRouter = Router();
 
@@ -68,5 +69,20 @@ gameAnalyticsRouter.get('/:gamePk/bullpen', async (req, res) => {
     res.json(result);
   } catch (e) {
     res.status(500).json({ error: 'Failed to get bullpen status' });
+  }
+});
+
+gameAnalyticsRouter.get('/:gamePk/defensive-positioning', async (req, res) => {
+  const gamePk = parseInt(req.params.gamePk, 10);
+  if (isNaN(gamePk)) { res.status(400).json({ error: 'Invalid gamePk' }); return; }
+
+  const batterId = parseInt(req.query.batterId as string, 10);
+  if (isNaN(batterId)) { res.status(400).json({ error: 'batterId required' }); return; }
+
+  try {
+    const result = await getDefensivePositioning(gamePk, batterId);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to get defensive positioning' });
   }
 });

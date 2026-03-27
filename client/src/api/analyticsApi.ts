@@ -103,3 +103,35 @@ export function fetchUmpireData(gamePk: number): Promise<UmpireResponse> {
 export function fetchBullpenStatus(gamePk: number): Promise<BullpenResponse> {
   return apiFetch<BullpenResponse>(`/game-analytics/${gamePk}/bullpen`);
 }
+
+export interface DefensivePositioningResponse {
+  fielders: Array<{
+    position: string;
+    playerId: number;
+    playerName: string;
+    svgX: number;
+    svgY: number;
+  }>;
+  alignment: {
+    ifStandardPct: number | null;
+    ifShadePct: number | null;
+    ifStrategicPct: number | null;
+    ofStandardPct: number | null;
+    ofStrategicPct: number | null;
+    totalPA: number;
+    pullPct: number | null;
+    centerPct: number | null;
+    oppoPct: number | null;
+  } | null;
+  shiftDetected: boolean;
+  shiftDescription: string | null;
+}
+
+export function fetchDefensivePositioning(
+  gamePk: number,
+  batterId: number,
+): Promise<DefensivePositioningResponse> {
+  return apiFetch<DefensivePositioningResponse>(
+    `/game-analytics/${gamePk}/defensive-positioning?batterId=${batterId}`
+  );
+}

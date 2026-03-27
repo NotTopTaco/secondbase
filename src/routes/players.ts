@@ -9,6 +9,8 @@ import {
 import { getTTOSplits } from '../services/ttoService.js';
 import { getPitchMovement } from '../services/pitchMovementService.js';
 import { getCountStats } from '../services/countStatsService.js';
+import { getStreak } from '../services/streakService.js';
+import { getPitchTunneling } from '../services/tunnelingService.js';
 
 export const playersRouter = Router();
 
@@ -80,4 +82,21 @@ playersRouter.get('/:id/count-stats', (req, res) => {
 
   const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
   res.json(getCountStats(id, season));
+});
+
+playersRouter.get('/:id/streak', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
+
+  const pitcherId = req.query.pitcherId ? parseInt(req.query.pitcherId as string, 10) : undefined;
+  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+  res.json(getStreak(id, pitcherId, season));
+});
+
+playersRouter.get('/:id/pitch-tunneling', (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
+
+  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+  res.json(getPitchTunneling(id, season));
 });

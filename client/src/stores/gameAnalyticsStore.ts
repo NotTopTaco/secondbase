@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { fetchDefensivePositioning, type DefensivePositioningResponse } from '../api/analyticsApi';
 
 export interface CompletedPlay {
   playIndex: number;
@@ -27,7 +28,10 @@ export interface GameAnalyticsState {
   currentPitcherId: number | null;
   currentBatterTTOPass: number;
   umpire: { id: number; name: string } | null;
+  defensivePositioning: DefensivePositioningResponse | null;
+  loadingDefensivePositioning: boolean;
   updateFromFeed: (feed: unknown) => void;
+  fetchDefensivePositioningData: (gamePk: number, batterId: number) => Promise<void>;
 }
 
 interface LiveFeed {
@@ -86,6 +90,18 @@ export const useGameAnalyticsStore = create<GameAnalyticsState>((set, get) => ({
   currentPitcherId: null,
   currentBatterTTOPass: 1,
   umpire: null,
+  defensivePositioning: null,
+  loadingDefensivePositioning: false,
+
+  fetchDefensivePositioningData: async (gamePk: number, batterId: number) => {
+    set({ loadingDefensivePositioning: true });
+    try {
+      const result = await fetchDefensivePositioning(gamePk, batterId);
+      set({ defensivePositioning: result, loadingDefensivePositioning: false });
+    } catch {
+      set({ loadingDefensivePositioning: false });
+    }
+  },
 
   updateFromFeed: (feed: unknown) => {
     const f = feed as LiveFeed;

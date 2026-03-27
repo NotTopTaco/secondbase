@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchBatterCountStats, fetchTTOSplits, fetchPitchMovement } from '../api/playerApi';
+import { fetchBatterCountStats, fetchTTOSplits, fetchPitchMovement, fetchStreak, fetchPitchTunneling, type StreakData, type PitchTunnelingData } from '../api/playerApi';
 
 export interface CountStatRow {
   balls: number;
@@ -35,9 +35,13 @@ export interface AnalyticsDataState {
   batterCountStats: CountStatRow[];
   pitcherTTOSplits: TTOSplitRow[];
   pitchMovement: { pitcher: PitchMovementPoint[]; leagueAvg: PitchMovementPoint[] } | null;
+  streakData: StreakData | null;
+  pitchTunneling: PitchTunnelingData | null;
   loadingCountStats: boolean;
   loadingTTOSplits: boolean;
   loadingPitchMovement: boolean;
+  loadingStreak: boolean;
+  loadingTunneling: boolean;
   error: string | null;
   fetchAllP1Data: (batterId: number, pitcherId: number) => Promise<void>;
   clear: () => void;
@@ -47,9 +51,13 @@ export const useAnalyticsDataStore = create<AnalyticsDataState>((set) => ({
   batterCountStats: [],
   pitcherTTOSplits: [],
   pitchMovement: null,
+  streakData: null,
+  pitchTunneling: null,
   loadingCountStats: false,
   loadingTTOSplits: false,
   loadingPitchMovement: false,
+  loadingStreak: false,
+  loadingTunneling: false,
   error: null,
 
   fetchAllP1Data: async (batterId, pitcherId) => {
@@ -57,6 +65,8 @@ export const useAnalyticsDataStore = create<AnalyticsDataState>((set) => ({
       loadingCountStats: true,
       loadingTTOSplits: true,
       loadingPitchMovement: true,
+      loadingStreak: true,
+      loadingTunneling: true,
       error: null,
     });
 
@@ -66,10 +76,12 @@ export const useAnalyticsDataStore = create<AnalyticsDataState>((set) => ({
         (e: Error) => ({ ok: false as const, error: e.message }),
       );
 
-    const [csResult, ttoResult, pmResult] = await Promise.all([
+    const [csResult, ttoResult, pmResult, streakResult, tunnelingResult] = await Promise.all([
       settle(fetchBatterCountStats(batterId)),
       settle(fetchTTOSplits(pitcherId)),
       settle(fetchPitchMovement(pitcherId)),
+      settle(fetchStreak(batterId, pitcherId)),
+      settle(fetchPitchTunneling(pitcherId)),
     ]);
 
     const errors: string[] = [];
@@ -95,6 +107,20 @@ export const useAnalyticsDataStore = create<AnalyticsDataState>((set) => ({
       set({ loadingPitchMovement: false });
     }
 
+    if (streakResult.ok) {
+      set({ streakData: streakResult.value, loadingStreak: false });
+    } else {
+      errors.push(streakResult.error);
+      set({ loadingStreak: false });
+    }
+
+    if (tunnelingResult.ok) {
+      set({ pitchTunneling: tunnelingResult.value, loadingTunneling: false });
+    } else {
+      errors.push(tunnelingResult.error);
+      set({ loadingTunneling: false });
+    }
+
     if (errors.length > 0) {
       set({ error: errors.join('; ') });
     }
@@ -105,9 +131,13 @@ export const useAnalyticsDataStore = create<AnalyticsDataState>((set) => ({
       batterCountStats: [],
       pitcherTTOSplits: [],
       pitchMovement: null,
+      streakData: null,
+      pitchTunneling: null,
       loadingCountStats: false,
       loadingTTOSplits: false,
       loadingPitchMovement: false,
+      loadingStreak: false,
+      loadingTunneling: false,
       error: null,
     }),
 }));

@@ -1,0 +1,138 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.section {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  padding: var(--space-md);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+  padding-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+
+.trendArrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.trendLabel {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.hot {
+  color: var(--success);
+}
+
+.neutral {
+  color: var(--text-muted);
+}
+
+.cold {
+  color: var(--danger);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.sparklineContainer {
+  height: 40px;
+  width: 100%;
+  margin-top: var(--space-sm);
+}
+
+.sparklineSvg {
+  width: 100%;
+  height: 100%;
+}
+
+.noData {
+  text-align: center;
+  color: var(--text-muted);
+  padding: var(--space-lg);
+  font-size: 13px;
+}
+
+/* Pitcher starts list */
+
+.startsList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.startRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.startDate {
+  font-size: 11px;
+  color: var(--text-muted);
+  min-width: 50px;
+  flex-shrink: 0;
+}
+
+.gameScoreBarOuter {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-primary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.gameScoreBarInner {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.gameScoreValue {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.startMeta {
+  font-size: 10px;
+  color: var(--text-muted);
+  min-width: 65px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.seasonAvg {
+  margin-top: var(--space-sm);
+  display: flex;
+  justify-content: center;
+}

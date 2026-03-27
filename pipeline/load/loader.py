@@ -25,6 +25,10 @@ _LOAD_ORDER = [
     "umpire_stats",
     "league_pitch_averages",
     "batter_count_stats",
+    "batter_game_stats",
+    "pitcher_game_stats",
+    "batter_defensive_alignment",
+    "pitch_tunneling",
 ]
 
 

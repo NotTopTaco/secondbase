@@ -178,3 +178,82 @@ export interface CountStatsResponse {
     bbPct: number | null;
   }>;
 }
+
+// P2: Streak types
+
+export interface StreakWindow {
+  window: '7d' | '14d' | 'season';
+  ba: number | null;
+  slg: number | null;
+  woba: number | null;
+  kPct: number | null;
+  pa: number;
+  gamesPlayed: number;
+}
+
+export interface BatterDailyStat {
+  gameDate: string;
+  ba: number | null;
+  slg: number | null;
+  woba: number | null;
+  kPct: number | null;
+  pa: number;
+}
+
+export interface BatterStreakResponse {
+  windows: StreakWindow[];
+  dailyStats: BatterDailyStat[];
+}
+
+export interface PitcherRecentStart {
+  gameDate: string;
+  gameScore: number | null;
+  outsRecorded: number;
+  k: number;
+  hAgainst: number;
+  bbAgainst: number;
+}
+
+export interface PitcherStreakResponse {
+  recentStarts: PitcherRecentStart[];
+  seasonAvgGameScore: number | null;
+}
+
+export interface StreakResponse {
+  batter: BatterStreakResponse;
+  pitcher: PitcherStreakResponse;
+}
+
+// P2: Pitch Tunneling types
+
+export interface TunnelPair {
+  pitchTypeA: string;
+  pitchTypeB: string;
+  tunnelScore: number;
+  decisionPointDistanceFt: number;
+  separationAtDecisionIn: number;
+  separationAtPlateIn: number;
+  releaseXA: number;
+  releaseZA: number;
+  releaseXB: number;
+  releaseZB: number;
+  velocityA: number;
+  velocityB: number;
+  pfxXA: number;
+  pfxZA: number;
+  pfxXB: number;
+  pfxZB: number;
+  plateXA: number;
+  plateZA: number;
+  plateXB: number;
+  plateZB: number;
+  extensionA: number;
+  extensionB: number;
+  sampleA: number;
+  sampleB: number;
+}
+
+export interface PitchTunnelingResponse {
+  pairs: TunnelPair[];
+  bestPair: TunnelPair | null;
+}

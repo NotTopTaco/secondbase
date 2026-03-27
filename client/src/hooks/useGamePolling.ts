@@ -56,6 +56,7 @@ export function useGamePolling(gamePk: number | null): UseGamePollingResult {
           if (batter && pitcher) {
             void useMatchupStore.getState().fetchAllForMatchup(batter.id, pitcher.id);
             void useAnalyticsDataStore.getState().fetchAllP1Data(batter.id, pitcher.id);
+            void useGameAnalyticsStore.getState().fetchDefensivePositioningData(gamePk!, batter.id);
           }
         }
       } catch (e) {

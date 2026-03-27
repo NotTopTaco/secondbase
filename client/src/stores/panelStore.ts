@@ -22,12 +22,18 @@ const DEFAULT_PANELS: PanelInfo[] = [
   { id: 'pitchMovement', title: 'Pitch Movement', collapsed: false },
   { id: 'bullpenStatus', title: 'Bullpen Status', collapsed: false },
   { id: 'batterByCount', title: 'Batter by Count', collapsed: false },
+  { id: 'streakIndicator', title: 'Hot/Cold Streak', collapsed: false },
+  { id: 'defensivePositioning', title: 'Defensive Positioning', collapsed: false },
+  { id: 'pitchTunneling', title: 'Pitch Tunneling', collapsed: false },
 ];
 
-const CURRENT_VERSION = 2;
+const CURRENT_VERSION = 3;
 const P1_PANEL_IDS = new Set([
   'nextPitch', 'winProbability', 'pitcherFatigue', 'timeThroughOrder',
   'umpireScouting', 'pitchMovement', 'bullpenStatus', 'batterByCount',
+]);
+const P2_PANEL_IDS = new Set([
+  'streakIndicator', 'defensivePositioning', 'pitchTunneling',
 ]);
 
 export interface PanelState {
@@ -62,14 +68,20 @@ export const usePanelStore = create<PanelState>()(
       name: 'secondbase-panels',
       version: CURRENT_VERSION,
       migrate: (persisted: any, version: number) => {
+        let state = persisted as PanelState;
         if (version < 2) {
           // Add P1 panels to existing layouts
-          const existing = persisted as PanelState;
-          const existingIds = new Set(existing.panels.map((p: PanelInfo) => p.id));
+          const existingIds = new Set(state.panels.map((p: PanelInfo) => p.id));
           const newPanels = DEFAULT_PANELS.filter(p => P1_PANEL_IDS.has(p.id) && !existingIds.has(p.id));
-          return { ...existing, panels: [...existing.panels, ...newPanels] };
+          state = { ...state, panels: [...state.panels, ...newPanels] };
         }
-        return persisted;
+        if (version < 3) {
+          // Add P2 panels to existing layouts
+          const existingIds = new Set(state.panels.map((p: PanelInfo) => p.id));
+          const newPanels = DEFAULT_PANELS.filter(p => P2_PANEL_IDS.has(p.id) && !existingIds.has(p.id));
+          state = { ...state, panels: [...state.panels, ...newPanels] };
+        }
+        return state;
       },
     },
   ),

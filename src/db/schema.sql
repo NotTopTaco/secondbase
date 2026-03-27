@@ -209,6 +209,81 @@ CREATE TABLE IF NOT EXISTS batter_count_stats (
   FOREIGN KEY (player_id) REFERENCES players(player_id)
 );
 
+-- P2 Analytics tables
+
+CREATE TABLE IF NOT EXISTS batter_game_stats (
+  player_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  game_date TEXT NOT NULL,
+  game_pk INTEGER,
+  pa INTEGER DEFAULT 0,
+  ab INTEGER DEFAULT 0,
+  h INTEGER DEFAULT 0,
+  total_bases INTEGER DEFAULT 0,
+  bb INTEGER DEFAULT 0,
+  k INTEGER DEFAULT 0,
+  woba_value_sum REAL DEFAULT 0,
+  woba_denom_sum REAL DEFAULT 0,
+  avg_exit_velo REAL,
+  PRIMARY KEY (player_id, season, game_date),
+  FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+CREATE TABLE IF NOT EXISTS pitcher_game_stats (
+  player_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  game_date TEXT NOT NULL,
+  game_pk INTEGER,
+  pa_against INTEGER DEFAULT 0,
+  ab_against INTEGER DEFAULT 0,
+  h_against INTEGER DEFAULT 0,
+  hr_against INTEGER DEFAULT 0,
+  bb_against INTEGER DEFAULT 0,
+  k INTEGER DEFAULT 0,
+  outs_recorded INTEGER DEFAULT 0,
+  game_score INTEGER,
+  PRIMARY KEY (player_id, season, game_date),
+  FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+CREATE TABLE IF NOT EXISTS pitch_tunneling (
+  player_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  pitch_type_a TEXT NOT NULL,
+  pitch_type_b TEXT NOT NULL,
+  tunnel_score REAL,
+  decision_point_distance_ft REAL,
+  separation_at_decision_in REAL,
+  separation_at_plate_in REAL,
+  release_x_a REAL, release_z_a REAL,
+  release_x_b REAL, release_z_b REAL,
+  velocity_a REAL, velocity_b REAL,
+  pfx_x_a REAL, pfx_z_a REAL,
+  pfx_x_b REAL, pfx_z_b REAL,
+  plate_x_a REAL, plate_z_a REAL,
+  plate_x_b REAL, plate_z_b REAL,
+  extension_a REAL, extension_b REAL,
+  sample_a INTEGER DEFAULT 0, sample_b INTEGER DEFAULT 0,
+  PRIMARY KEY (player_id, season, pitch_type_a, pitch_type_b),
+  FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
+CREATE TABLE IF NOT EXISTS batter_defensive_alignment (
+  player_id INTEGER NOT NULL,
+  season INTEGER NOT NULL,
+  if_standard_pct REAL,
+  if_shade_pct REAL,
+  if_strategic_pct REAL,
+  of_standard_pct REAL,
+  of_strategic_pct REAL,
+  total_pa INTEGER DEFAULT 0,
+  pull_pct REAL,
+  center_pct REAL,
+  oppo_pct REAL,
+  PRIMARY KEY (player_id, season),
+  FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_hot_zones_lookup ON batter_hot_zones(player_id, season, period);
 CREATE INDEX IF NOT EXISTS idx_tendencies_lookup ON pitcher_tendencies(player_id, season, batter_hand);
@@ -222,6 +297,10 @@ CREATE INDEX IF NOT EXISTS idx_tto_lookup ON pitcher_tto_splits(player_id, seaso
 CREATE INDEX IF NOT EXISTS idx_umpire_zones_lookup ON umpire_zones(umpire_id, season);
 CREATE INDEX IF NOT EXISTS idx_league_avg_lookup ON league_pitch_averages(season, pitcher_hand);
 CREATE INDEX IF NOT EXISTS idx_batter_count_lookup ON batter_count_stats(player_id, season);
+CREATE INDEX IF NOT EXISTS idx_batter_game_lookup ON batter_game_stats(player_id, season, game_date);
+CREATE INDEX IF NOT EXISTS idx_pitcher_game_lookup ON pitcher_game_stats(player_id, season, game_date);
+CREATE INDEX IF NOT EXISTS idx_def_align_lookup ON batter_defensive_alignment(player_id, season);
+CREATE INDEX IF NOT EXISTS idx_tunneling_lookup ON pitch_tunneling(player_id, season);
 
 -- Populate zone grid (5x5, bottom-left to top-right)
 -- Horizontal: -1.25 to +1.25 ft (5 bands of 0.5 ft)

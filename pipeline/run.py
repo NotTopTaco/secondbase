@@ -63,6 +63,9 @@ from pipeline.transform.tto_splits import transform_tto_splits  # noqa: E402
 from pipeline.transform.umpire_zones import transform_umpire_zones  # noqa: E402
 from pipeline.transform.league_averages import transform_league_averages  # noqa: E402
 from pipeline.transform.batter_count_stats import transform_batter_count_stats  # noqa: E402
+from pipeline.transform.streak_stats import transform_streak_stats  # noqa: E402
+from pipeline.transform.defensive_alignment import transform_defensive_alignment  # noqa: E402
+from pipeline.transform.pitch_tunneling import transform_pitch_tunneling  # noqa: E402
 from pipeline.load.loader import load_all  # noqa: E402
 
 
@@ -163,6 +166,15 @@ def run_full(season: int) -> None:
         logger.info("--- TRANSFORM: Batter Count Stats ---")
         batter_count_df = transform_batter_count_stats(statcast_df, season)
 
+        logger.info("--- TRANSFORM: Streak Stats ---")
+        batter_game_df, pitcher_game_df = transform_streak_stats(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Defensive Alignment ---")
+        def_align_df = transform_defensive_alignment(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Pitch Tunneling ---")
+        tunneling_df = transform_pitch_tunneling(statcast_df, season)
+
         # --- Load ---
         logger.info("--- LOAD ---")
         transformed = {
@@ -180,6 +192,10 @@ def run_full(season: int) -> None:
             "umpire_stats": umpire_stats_df,
             "league_pitch_averages": league_avg_df,
             "batter_count_stats": batter_count_df,
+            "batter_game_stats": batter_game_df,
+            "pitcher_game_stats": pitcher_game_df,
+            "batter_defensive_alignment": def_align_df,
+            "pitch_tunneling": tunneling_df,
         }
         total_rows = load_all(conn, transformed)
 
@@ -247,12 +263,17 @@ def run_incremental(season: int, days: int = 7) -> None:
         logger.info("--- TRANSFORM: Matchup History ---")
         matchup_df = transform_matchup_history(statcast_df, season)
 
+        logger.info("--- TRANSFORM: Streak Stats ---")
+        batter_game_df, pitcher_game_df = transform_streak_stats(statcast_df, season)
+
         # --- Load ---
         logger.info("--- LOAD (event-level tables only) ---")
         transformed = {
             "players": players_df,
             "batter_spray_chart": spray_df,
             "matchup_history": matchup_df,
+            "batter_game_stats": batter_game_df,
+            "pitcher_game_stats": pitcher_game_df,
         }
         total_rows = load_all(conn, transformed)
 

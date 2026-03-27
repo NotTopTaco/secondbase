@@ -28,6 +28,9 @@ import { UmpireScoutingPanel } from '../umpireScouting/UmpireScoutingPanel';
 import { PitchMovementPanel } from '../pitchMovement/PitchMovementPanel';
 import { BullpenStatusPanel } from '../bullpenStatus/BullpenStatusPanel';
 import { BatterByCountPanel } from '../batterByCount/BatterByCountPanel';
+import { StreakIndicatorPanel } from '../streakIndicator/StreakIndicatorPanel';
+import { DefensivePositioningPanel } from '../defensivePositioning/DefensivePositioningPanel';
+import { PitchTunnelingPanel } from '../pitchTunneling/PitchTunnelingPanel';
 import styles from './PanelGrid.module.css';
 
 const PANEL_COMPONENTS: Record<string, React.FC> = {
@@ -45,6 +48,9 @@ const PANEL_COMPONENTS: Record<string, React.FC> = {
   pitchMovement: PitchMovementPanel,
   bullpenStatus: BullpenStatusPanel,
   batterByCount: BatterByCountPanel,
+  streakIndicator: StreakIndicatorPanel,
+  defensivePositioning: DefensivePositioningPanel,
+  pitchTunneling: PitchTunnelingPanel,
 };
 
 export function PanelGrid() {
