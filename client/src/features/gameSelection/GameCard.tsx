@@ -1,16 +1,16 @@
 import { useNavigate } from 'react-router-dom';
 import type { ScheduleGame } from '../../api/gameApi';
+import { useAuthStore } from '../../stores/authStore';
 import { PlayerPhoto } from '../../components/ui/PlayerPhoto';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { TeamLogo } from '../../components/ui/TeamLogo';
+import { FavoriteStar } from '../../components/ui/FavoriteStar';
 import { getTeamColors } from '../../theme/teamColors';
 import styles from './GameCard.module.css';
 
 interface GameCardProps {
   game: ScheduleGame;
 }
-
-const BRAVES_ID = 144;
 
 function shortenName(fullName: string): string {
   const parts = fullName.split(' ');
@@ -31,9 +31,11 @@ function getStatusLabel(status: string): 'Live' | 'Preview' | 'Final' | 'Delayed
 
 export function GameCard({ game }: GameCardProps) {
   const navigate = useNavigate();
+  const isTeamFavorite = useAuthStore((s) => s.isTeamFavorite);
+  const isPlayerFavorite = useAuthStore((s) => s.isPlayerFavorite);
   const away = game.teams.away;
   const home = game.teams.home;
-  const isBraves = away.team.id === BRAVES_ID || home.team.id === BRAVES_ID;
+  const isFavorite = isTeamFavorite(away.team.id) || isTeamFavorite(home.team.id);
   const isLive = game.status.abstractGameState === 'Live';
   const isFinal = game.status.abstractGameState === 'Final';
   const showScores = isLive || isFinal;
@@ -49,7 +51,7 @@ export function GameCard({ game }: GameCardProps) {
 
   return (
     <div
-      className={`${styles.card} ${isBraves ? styles.braves : ''} ${isLive ? styles.live : ''}`}
+      className={`${styles.card} ${isFavorite ? styles.favorite : ''} ${isLive ? styles.live : ''}`}
       onClick={() => navigate(`/game/${game.gamePk}`)}
       role="button"
       tabIndex={0}
@@ -88,11 +90,13 @@ export function GameCard({ game }: GameCardProps) {
       </div>
       {!showScores && away.probablePitcher && home.probablePitcher && (
         <div className={styles.matchup}>
+          {isPlayerFavorite(away.probablePitcher.id) && <FavoriteStar size={10} />}
           <PlayerPhoto playerId={away.probablePitcher.id} size={24} />
           <span>{shortenName(away.probablePitcher.fullName)}</span>
           <span className={styles.vs}>vs</span>
           <span>{shortenName(home.probablePitcher.fullName)}</span>
           <PlayerPhoto playerId={home.probablePitcher.id} size={24} />
+          {isPlayerFavorite(home.probablePitcher.id) && <FavoriteStar size={10} />}
         </div>
       )}
       {isLive && game.linescore?.offense?.batter && game.linescore?.defense?.pitcher && (
@@ -101,8 +105,11 @@ export function GameCard({ game }: GameCardProps) {
             {game.linescore.inningHalf === 'Top' ? 'Top' : 'Bot'} {game.linescore.currentInningOrdinal}
           </span>
           {' — '}
-          {shortenName(game.linescore.offense.batter.fullName)} vs{' '}
+          {shortenName(game.linescore.offense.batter.fullName)}
+          {isPlayerFavorite(game.linescore.offense.batter.id) && <FavoriteStar size={10} />}
+          {' vs '}
           {shortenName(game.linescore.defense.pitcher.fullName)}
+          {isPlayerFavorite(game.linescore.defense.pitcher.id) && <FavoriteStar size={10} />}
         </div>
       )}
       <div className={styles.meta}>

@@ -5,6 +5,7 @@ import {
   getPitcherTendencies,
   getBatterVsPitchType,
   getSprayChart,
+  searchPlayers,
 } from '../services/playerService.js';
 import { getTTOSplits } from '../services/ttoService.js';
 import { getPitchMovement } from '../services/pitchMovementService.js';
@@ -13,6 +14,15 @@ import { getStreak } from '../services/streakService.js';
 import { getPitchTunneling } from '../services/tunnelingService.js';
 
 export const playersRouter = Router();
+
+playersRouter.get('/search', (req, res) => {
+  const q = (req.query.q as string || '').trim();
+  if (q.length < 2) {
+    res.json({ results: [] });
+    return;
+  }
+  res.json({ results: searchPlayers(q) });
+});
 
 playersRouter.get('/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);

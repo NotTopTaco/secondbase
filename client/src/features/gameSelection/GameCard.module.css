@@ -25,7 +25,7 @@
   box-shadow: var(--shadow-lg), 0 0 20px color-mix(in srgb, var(--home-color, #4a9eff) 20%, transparent);
 }
 
-.braves {
+.favorite {
   border-color: rgba(206, 17, 65, 0.3);
   background:
     linear-gradient(180deg,
@@ -34,7 +34,7 @@
   box-shadow: var(--shadow-sm), 0 0 12px rgba(206, 17, 65, 0.15);
 }
 
-.braves:hover {
+.favorite:hover {
   box-shadow: var(--shadow-lg), 0 0 24px rgba(206, 17, 65, 0.25);
 }
 

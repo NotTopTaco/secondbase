@@ -80,6 +80,13 @@ export function getBatterVsPitchType(playerId: number, season?: number, pitcherH
   ).all(playerId, s) as BatterVsPitchType[];
 }
 
+export function searchPlayers(query: string): { player_id: number; full_name: string; team: string | null; position: string | null }[] {
+  const db = getDb();
+  return db.prepare(
+    'SELECT player_id, full_name, team, position FROM players WHERE full_name LIKE ? LIMIT 20'
+  ).all(`%${query}%`) as { player_id: number; full_name: string; team: string | null; position: string | null }[];
+}
+
 export function getSprayChart(playerId: number, season?: number, pitchType?: string, pitcherHand?: string): SprayChartEntry[] {
   const db = getDb();
   const s = season || getLatestSeason();

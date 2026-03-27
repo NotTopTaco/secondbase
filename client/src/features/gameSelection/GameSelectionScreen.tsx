@@ -1,13 +1,18 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { fetchSchedule, type ScheduleGame } from '../../api/gameApi';
+import { useAuthStore } from '../../stores/authStore';
 import { Spinner } from '../../components/ui/Spinner';
 import { GameCard } from './GameCard';
 import styles from './GameSelectionScreen.module.css';
 
 export function GameSelectionScreen() {
+  const navigate = useNavigate();
   const [games, setGames] = useState<ScheduleGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const favoriteTeamIds = useAuthStore((s) => s.favoriteTeamIds);
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,6 +33,17 @@ export function GameSelectionScreen() {
     return () => { cancelled = true; };
   }, []);
 
+  const sortedGames = useMemo(() => {
+    if (favoriteTeamIds.size === 0) return games;
+    return [...games].sort((a, b) => {
+      const aFav = favoriteTeamIds.has(a.teams.away.team.id) || favoriteTeamIds.has(a.teams.home.team.id);
+      const bFav = favoriteTeamIds.has(b.teams.away.team.id) || favoriteTeamIds.has(b.teams.home.team.id);
+      if (aFav && !bFav) return -1;
+      if (!aFav && bFav) return 1;
+      return 0;
+    });
+  }, [games, favoriteTeamIds]);
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
@@ -43,6 +59,14 @@ export function GameSelectionScreen() {
             year: 'numeric',
           })}
         </p>
+        <button
+          className={styles.profileBtn}
+          onClick={() => navigate('/profile')}
+          type="button"
+          title="Profile"
+        >
+          {user?.username.charAt(0).toUpperCase()}
+        </button>
       </div>
 
       <hr className={`stitchLine ${styles.stitching}`} />
@@ -57,7 +81,7 @@ export function GameSelectionScreen() {
 
       {!loading && !error && games.length > 0 && (
         <div className={styles.grid}>
-          {games.map((game) => (
+          {sortedGames.map((game) => (
             <GameCard key={game.gamePk} game={game} />
           ))}
         </div>

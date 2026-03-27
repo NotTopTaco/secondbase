@@ -284,6 +284,36 @@ CREATE TABLE IF NOT EXISTS batter_defensive_alignment (
   FOREIGN KEY (player_id) REFERENCES players(player_id)
 );
 
+-- User accounts and sessions
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  token TEXT PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  expires_at TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_favorite_teams (
+  user_id INTEGER NOT NULL,
+  team_id INTEGER NOT NULL,
+  PRIMARY KEY (user_id, team_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS user_favorite_players (
+  user_id INTEGER NOT NULL,
+  player_id INTEGER NOT NULL,
+  PRIMARY KEY (user_id, player_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Indexes for common query patterns
 CREATE INDEX IF NOT EXISTS idx_hot_zones_lookup ON batter_hot_zones(player_id, season, period);
 CREATE INDEX IF NOT EXISTS idx_tendencies_lookup ON pitcher_tendencies(player_id, season, batter_hand);
@@ -301,6 +331,10 @@ CREATE INDEX IF NOT EXISTS idx_batter_game_lookup ON batter_game_stats(player_id
 CREATE INDEX IF NOT EXISTS idx_pitcher_game_lookup ON pitcher_game_stats(player_id, season, game_date);
 CREATE INDEX IF NOT EXISTS idx_def_align_lookup ON batter_defensive_alignment(player_id, season);
 CREATE INDEX IF NOT EXISTS idx_tunneling_lookup ON pitch_tunneling(player_id, season);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_fav_teams_user ON user_favorite_teams(user_id);
+CREATE INDEX IF NOT EXISTS idx_fav_players_user ON user_favorite_players(user_id);
 
 -- Populate zone grid (5x5, bottom-left to top-right)
 -- Horizontal: -1.25 to +1.25 ft (5 bands of 0.5 ft)
