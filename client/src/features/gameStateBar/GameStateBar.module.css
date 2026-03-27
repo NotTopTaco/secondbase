@@ -1,17 +1,43 @@
+/* ── Bar: 5-zone CSS Grid ─────────────────────────────────── */
 .bar {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto auto;
   align-items: center;
-  justify-content: space-between;
   background: var(--gradient-bar);
   border-top: 3px solid var(--mlb-red);
   border-bottom: 1px solid rgba(191, 13, 62, 0.15);
-  padding: var(--space-sm) var(--space-lg);
-  gap: var(--space-md);
-  flex-wrap: wrap;
+  padding: var(--space-xs) var(--space-md);
+  min-height: 52px;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* ── Centered Logo ────────────────────────────────────────── */
+.logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  text-shadow: 0 0 20px rgba(232, 232, 240, 0.15);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.logoAccent {
+  color: var(--mlb-red);
+  text-shadow: 0 0 12px var(--mlb-red-glow);
+}
+
+/* ── Zone A — Navigation ─────────────────────────────────── */
+.zoneNav {
+  padding: 0 var(--space-sm);
 }
 
 .homeBtn {
@@ -25,7 +51,6 @@
   align-items: center;
   justify-content: center;
   transition: color var(--duration-fast), background var(--duration-fast);
-  flex-shrink: 0;
 }
 
 .homeBtn:hover {
@@ -33,99 +58,183 @@
   background: rgba(255, 255, 255, 0.06);
 }
 
-.section {
+/* ── Zone B — Scoreboard ─────────────────────────────────── */
+.zoneScoreboard {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-}
-
-.scoreBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.scoreRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.teamAbbr {
-  font-size: 14px;
-  font-weight: 700;
-  font-family: var(--font-display);
-  min-width: 32px;
-  text-align: left;
-}
-
-.runs {
-  font-size: 24px;
-  font-weight: 700;
-  font-family: var(--font-display);
-  color: var(--text-primary);
-  min-width: 24px;
-  text-align: right;
-  text-shadow: 0 0 12px rgba(232, 232, 240, 0.3);
+  gap: var(--space-md);
+  padding: 0 var(--space-md);
+  position: relative;
+  padding-right: 56px;
 }
 
 .inningInfo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  border-left: 1px solid rgba(191, 13, 62, 0.2);
-  border-right: 1px solid rgba(191, 13, 62, 0.2);
-  padding: 0 var(--space-sm);
+  gap: 1px;
 }
 
-.inningLabel {
-  font-size: 11px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  font-weight: 500;
+.inningArrow {
+  color: var(--mlb-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .inningNum {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--mlb-red);
   font-family: var(--font-display);
+  line-height: 1;
 }
 
-.count {
-  font-family: var(--font-mono);
-  font-size: 13px;
-  color: var(--text-secondary);
+.scoreTable {
   display: flex;
-  gap: var(--space-xs);
+  flex-direction: column;
+  gap: 2px;
 }
 
-.countLabel {
+.scoreHeaders {
+  display: grid;
+  grid-template-columns: 24px 36px 28px 20px 20px;
+  align-items: center;
+}
+
+.scoreHeader {
+  font-size: 9px;
   color: var(--text-muted);
-  font-size: 11px;
+  text-align: center;
+  font-weight: 500;
+  text-transform: uppercase;
 }
 
-.matchup {
+.scoreRow {
+  display: grid;
+  grid-template-columns: 24px 36px 28px 20px 20px;
+  align-items: center;
+}
+
+.teamAbbr {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  text-align: left;
+}
+
+.runs {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  text-align: center;
+  text-shadow: 0 0 12px rgba(232, 232, 240, 0.3);
+}
+
+.statCell {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.statusBadge {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+/* ── Zone C — Situation ──────────────────────────────────── */
+.zoneSituation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0 var(--space-md);
+  border-left: 1px solid var(--border);
+}
+
+.countDots {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dotRow {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-light);
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.dotBallActive {
+  background: var(--success);
+  border-color: var(--success);
+  box-shadow: 0 0 4px rgba(46, 204, 113, 0.5);
+}
+
+.dotStrikeActive {
+  background: var(--mlb-red);
+  border-color: var(--mlb-red);
+  box-shadow: 0 0 4px rgba(191, 13, 62, 0.5);
+}
+
+/* ── Zone D — Matchup ────────────────────────────────────── */
+.zoneMatchup {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  font-size: 13px;
+  padding: 0 var(--space-md);
+  border-left: 1px solid var(--border);
+}
+
+.matchupCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
 }
 
 .playerName {
-  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
   font-weight: 500;
-  max-width: 120px;
+  color: var(--text-primary);
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .vs {
+  font-size: 10px;
   color: var(--text-muted);
-  font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ── Zone E — Delay Control ──────────────────────────────── */
+.zoneDelay {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-md);
+  border-left: 1px solid var(--border);
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.zoneDelay:hover {
+  opacity: 1;
 }
 
 .delayControl {
@@ -149,6 +258,7 @@
   font-size: 14px;
   line-height: 1;
   padding: 0;
+  cursor: pointer;
   transition: background 0.15s;
 }
 
