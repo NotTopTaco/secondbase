@@ -49,3 +49,21 @@ export function removeFavoritePlayer(playerId: number): Promise<{ ok: boolean }>
 export function searchPlayers(query: string): Promise<{ results: PlayerSearchResult[] }> {
   return apiFetch<{ results: PlayerSearchResult[] }>(`/players/search?q=${encodeURIComponent(query)}`);
 }
+
+export interface PlayerTodayEntry {
+  playerId: number;
+  fullName: string;
+  gamePk: number;
+  gameState: 'Live' | 'Final' | 'Preview';
+  teamAbbreviation: string;
+  opponentAbbreviation: string;
+  isHome: boolean;
+  gameTime?: string;
+  batting?: { hits: number; atBats: number; homeRuns: number; rbi: number };
+  pitching?: { inningsPitched: string; strikeOuts: number; earnedRuns: number };
+  role: 'batter' | 'pitcher';
+}
+
+export function fetchPlayersToday(): Promise<{ players: PlayerTodayEntry[] }> {
+  return apiFetch<{ players: PlayerTodayEntry[] }>('/favorites/players-today');
+}

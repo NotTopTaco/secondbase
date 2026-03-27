@@ -28,7 +28,8 @@ export function BatterVsPitchTypePanel() {
   const batterVsPitch = useMatchupStore((s) => s.batterVsPitch);
   const loading = useMatchupStore((s) => s.loadingBatterVsPitch);
   const fetchBatterVsPitch = useMatchupStore((s) => s.fetchBatterVsPitch);
-  const batterId = useGameStore((s) => s.batter?.id ?? null);
+  const batter = useGameStore((s) => s.batter);
+  const batterId = batter?.id ?? null;
 
   useEffect(() => {
     if (!batterId) return;
@@ -46,6 +47,7 @@ export function BatterVsPitchTypePanel() {
       title={panel.title}
       collapsed={panel.collapsed}
       onToggleCollapse={() => toggleCollapse(PANEL_ID)}
+      players={batter ? [{ id: batter.id, name: batter.name }] : []}
       sortable
     >
       <div style={{ display: 'flex', gap: 'var(--space-sm)', marginBottom: 'var(--space-sm)', flexWrap: 'wrap' }}>

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
+import { useGameStore } from '../../stores/gameStore';
 import { useGameAnalyticsStore } from '../../stores/gameAnalyticsStore';
 import { useMatchupStore } from '../../stores/matchupStore';
 import { Spinner } from '../../components/ui/Spinner';
@@ -27,9 +28,13 @@ const OPTIMAL_OPTIONS = [
 export function DefensivePositioningPanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
+  const batter = useGameStore((s) => s.batter);
+  const pitcher = useGameStore((s) => s.pitcher);
   const data = useGameAnalyticsStore((s) => s.defensivePositioning);
   const loading = useGameAnalyticsStore((s) => s.loadingDefensivePositioning);
   const sprayChart = useMatchupStore((s) => s.sprayChart);
+
+  const panelPlayers = [batter, pitcher].filter(Boolean).map(p => ({ id: p!.id, name: p!.name }));
 
   const [showSpray, setShowSpray] = useState('on');
   const [showOptimal, setShowOptimal] = useState('off');
@@ -50,6 +55,7 @@ export function DefensivePositioningPanel() {
       title={panel.title}
       collapsed={panel.collapsed}
       onToggleCollapse={() => toggleCollapse(PANEL_ID)}
+      players={panelPlayers}
       sortable
     >
       {loading ? (

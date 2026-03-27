@@ -14,10 +14,13 @@
   position: relative;
 }
 
-.profileBtn {
+.profileWrapper {
   position: absolute;
   top: 0;
   right: 0;
+}
+
+.profileBtn {
   width: 36px;
   height: 36px;
   border-radius: 50%;

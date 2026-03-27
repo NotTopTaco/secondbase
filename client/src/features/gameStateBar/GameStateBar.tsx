@@ -5,6 +5,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { PlayerPhoto } from '../../components/ui/PlayerPhoto';
 import { TeamLogo } from '../../components/ui/TeamLogo';
 import { DiamondRunners } from '../../components/ui/DiamondRunners';
+import { AlertBadge } from '../../components/ui/AlertBadge';
 import { getTeamColors } from '../../theme/teamColors';
 import styles from './GameStateBar.module.css';
 
@@ -50,15 +51,18 @@ export function GameStateBar() {
     >
       {/* Zone A — Navigation */}
       <div className={styles.zoneNav}>
-        <button
-          className={styles.homeBtn}
-          onClick={(e) => { e.stopPropagation(); navigate('/'); }}
-          aria-label="Back to games"
-        >
-          <svg width="28" height="28" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M3 8 L10 2 L17 8 L17 17 L3 17 Z" transform="rotate(180 10 10)" />
-          </svg>
-        </button>
+        <div className={styles.navWrapper}>
+          <button
+            className={styles.homeBtn}
+            onClick={(e) => { e.stopPropagation(); navigate('/'); }}
+            aria-label="Back to games"
+          >
+            <svg width="28" height="28" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M3 8 L10 2 L17 8 L17 17 L3 17 Z" transform="rotate(180 10 10)" />
+            </svg>
+          </button>
+          <AlertBadge />
+        </div>
       </div>
 
       {/* Logo — centered */}

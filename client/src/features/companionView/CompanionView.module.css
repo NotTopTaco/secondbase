@@ -8,8 +8,15 @@
     var(--bg-primary);
 }
 
+.mainArea {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
 .content {
   flex: 1;
+  min-width: 0;
   overflow-y: auto;
 }
 

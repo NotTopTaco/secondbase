@@ -5,6 +5,7 @@ import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { Spinner } from '../../components/ui/Spinner';
 import { usePanelStore } from '../../stores/panelStore';
 import { useMatchupStore } from '../../stores/matchupStore';
+import { useGameStore } from '../../stores/gameStore';
 import { RESULT_COLORS } from '../../theme/colors';
 import { sprayDirection } from './sprayChartUtils';
 import { SprayChartCanvas } from './SprayChartCanvas';
@@ -39,6 +40,7 @@ export function SprayChartPanel() {
   const [hand, setHand] = useState('all');
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
+  const batter = useGameStore((s) => s.batter);
   const sprayChart = useMatchupStore((s) => s.sprayChart);
   const loading = useMatchupStore((s) => s.loadingSprayChart);
 
@@ -74,6 +76,7 @@ export function SprayChartPanel() {
       title={panel.title}
       collapsed={panel.collapsed}
       onToggleCollapse={() => toggleCollapse(PANEL_ID)}
+      players={batter ? [{ id: batter.id, name: batter.name }] : []}
       sortable
     >
       <FilterBar>

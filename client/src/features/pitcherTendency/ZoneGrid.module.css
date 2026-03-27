@@ -1,0 +1,30 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  max-width: 260px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: opacity var(--duration-fast);
+  position: relative;
+}
+
+.strikeZone {
+  outline: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.pct {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}

@@ -1,6 +1,7 @@
 import { Panel } from '../../components/ui/Panel';
 import { Spinner } from '../../components/ui/Spinner';
 import { usePanelStore } from '../../stores/panelStore';
+import { useGameStore } from '../../stores/gameStore';
 import { useMatchupStore } from '../../stores/matchupStore';
 import { MatchupSummary } from './MatchupSummary';
 import { AtBatLog } from './AtBatLog';
@@ -11,8 +12,12 @@ const PANEL_ID = 'headToHead';
 export function HeadToHeadPanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
+  const batter = useGameStore((s) => s.batter);
+  const pitcher = useGameStore((s) => s.pitcher);
   const h2h = useMatchupStore((s) => s.h2h);
   const loading = useMatchupStore((s) => s.loadingH2H);
+
+  const panelPlayers = [batter, pitcher].filter(Boolean).map(p => ({ id: p!.id, name: p!.name }));
 
   if (!panel) return null;
 
@@ -22,6 +27,7 @@ export function HeadToHeadPanel() {
       title={panel.title}
       collapsed={panel.collapsed}
       onToggleCollapse={() => toggleCollapse(PANEL_ID)}
+      players={panelPlayers}
       sortable
     >
       {loading ? (

@@ -1,0 +1,228 @@
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width var(--duration-normal) var(--ease-out-expo);
+}
+
+.collapsed {
+  width: 36px;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: var(--space-sm);
+}
+
+.expandBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--space-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  transition: color var(--duration-fast);
+}
+
+.expandBtn:hover {
+  color: var(--text-primary);
+}
+
+.collapsedCount {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-sm);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+
+.headerCount {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+
+.collapseBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: color var(--duration-fast);
+}
+
+.collapseBtn:hover {
+  color: var(--text-primary);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.section {
+  padding: var(--space-xs) 0;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.gameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+
+.gameRow:hover {
+  background: var(--bg-tertiary);
+}
+
+.liveRow {
+  border-left: 2px solid var(--success);
+}
+
+.teams {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.teamLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 12px;
+}
+
+.abbr {
+  color: var(--text-secondary);
+  font-weight: 500;
+  min-width: 28px;
+}
+
+.score {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-left: auto;
+}
+
+.statusCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 36px;
+}
+
+.statusText {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+.liveText {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.pinBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 1px;
+  opacity: 0.4;
+  transition: opacity var(--duration-fast), color var(--duration-fast);
+}
+
+.gameRow:hover .pinBtn {
+  opacity: 1;
+}
+
+.pinned {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  padding: var(--space-lg) var(--space-sm);
+}
+
+@media (max-width: 960px) {
+  .sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 150;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .collapsed {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 150;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+    border: 1px solid var(--border);
+    border-right: none;
+    height: auto;
+    padding: var(--space-sm) var(--space-xs);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+@media (max-width: 520px) {
+  .sidebar,
+  .collapsed {
+    display: none;
+  }
+}

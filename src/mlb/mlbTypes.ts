@@ -130,10 +130,21 @@ export interface MlbBoxscorePlayer {
   person: { id: number; fullName: string };
   position: { abbreviation: string };
   stats?: {
+    batting?: {
+      hits?: number;
+      atBats?: number;
+      homeRuns?: number;
+      rbi?: number;
+      strikeOuts?: number;
+      baseOnBalls?: number;
+    };
     pitching?: {
       numberOfPitches?: number;
       earnedRuns?: number;
       inningsPitched?: string;
+      strikeOuts?: number;
+      hits?: number;
+      baseOnBalls?: number;
     };
   };
   seasonStats?: {

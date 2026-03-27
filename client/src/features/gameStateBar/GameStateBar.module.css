@@ -47,6 +47,11 @@
   padding: 0 var(--space-sm);
 }
 
+.navWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
 .homeBtn {
   background: none;
   border: none;

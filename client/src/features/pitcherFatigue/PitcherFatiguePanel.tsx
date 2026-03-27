@@ -1,5 +1,6 @@
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
+import { useGameStore } from '../../stores/gameStore';
 import { useGameAnalyticsStore } from '../../stores/gameAnalyticsStore';
 import { useMatchupStore } from '../../stores/matchupStore';
 import { VelocityChart } from './VelocityChart';
@@ -12,6 +13,7 @@ const PANEL_ID = 'pitcherFatigue';
 export function PitcherFatiguePanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
+  const pitcher = useGameStore((s) => s.pitcher);
   const pitches = useGameAnalyticsStore((s) => s.currentPitcherAllPitches);
   const tendencies = useMatchupStore((s) => s.tendencies);
 
@@ -48,6 +50,7 @@ export function PitcherFatiguePanel() {
       title={panel.title}
       collapsed={panel.collapsed}
       onToggleCollapse={() => toggleCollapse(PANEL_ID)}
+      players={pitcher ? [{ id: pitcher.id, name: pitcher.name }] : []}
       sortable
     >
       <FatigueAlert pitches={pitches} seasonAverages={seasonAverages} />

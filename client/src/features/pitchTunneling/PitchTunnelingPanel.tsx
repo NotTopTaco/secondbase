@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
+import { useGameStore } from '../../stores/gameStore';
 import { useAnalyticsDataStore } from '../../stores/analyticsDataStore';
 import { Spinner } from '../../components/ui/Spinner';
 import { FilterBar } from '../../components/ui/FilterBar';
@@ -20,6 +21,7 @@ const VIEW_OPTIONS = [
 export function PitchTunnelingPanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
+  const pitcher = useGameStore((s) => s.pitcher);
   const tunneling = useAnalyticsDataStore((s) => s.pitchTunneling);
   const loading = useAnalyticsDataStore((s) => s.loadingTunneling);
 
@@ -45,6 +47,7 @@ export function PitchTunnelingPanel() {
       title={panel.title}
       collapsed={panel.collapsed}
       onToggleCollapse={() => toggleCollapse(PANEL_ID)}
+      players={pitcher ? [{ id: pitcher.id, name: pitcher.name }] : []}
       sortable
     >
       {loading ? (

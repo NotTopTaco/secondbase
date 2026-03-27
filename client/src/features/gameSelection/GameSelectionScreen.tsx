@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSchedule, type ScheduleGame } from '../../api/gameApi';
 import { useAuthStore } from '../../stores/authStore';
+import { useSchedulePolling } from '../../hooks/useSchedulePolling';
 import { Spinner } from '../../components/ui/Spinner';
+import { AlertBadge } from '../../components/ui/AlertBadge';
 import { GameCard } from './GameCard';
+import { YourPlayersToday } from './YourPlayersToday';
 import styles from './GameSelectionScreen.module.css';
 
 export function GameSelectionScreen() {
@@ -12,7 +15,10 @@ export function GameSelectionScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const favoriteTeamIds = useAuthStore((s) => s.favoriteTeamIds);
+  const favoritePlayerIds = useAuthStore((s) => s.favoritePlayerIds);
   const user = useAuthStore((s) => s.user);
+
+  useSchedulePolling(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +50,8 @@ export function GameSelectionScreen() {
     });
   }, [games, favoriteTeamIds]);
 
+  const hasLiveGames = games.some((g) => g.status.abstractGameState === 'Live');
+
   return (
     <div className={styles.screen}>
       <div className={styles.header}>
@@ -59,14 +67,17 @@ export function GameSelectionScreen() {
             year: 'numeric',
           })}
         </p>
-        <button
-          className={styles.profileBtn}
-          onClick={() => navigate('/profile')}
-          type="button"
-          title="Profile"
-        >
-          {user?.username.charAt(0).toUpperCase()}
-        </button>
+        <div className={styles.profileWrapper}>
+          <button
+            className={styles.profileBtn}
+            onClick={() => navigate('/profile')}
+            type="button"
+            title="Profile"
+          >
+            {user?.username.charAt(0).toUpperCase()}
+          </button>
+          <AlertBadge />
+        </div>
       </div>
 
       <hr className={`stitchLine ${styles.stitching}`} />
@@ -75,16 +86,20 @@ export function GameSelectionScreen() {
 
       {error && <p className={styles.error}>Failed to load schedule: {error}</p>}
 
-      {!loading && !error && games.length === 0 && (
-        <p className={styles.empty}>No games scheduled today</p>
-      )}
+      {!loading && !error && (
+        <>
+          {favoritePlayerIds.size > 0 && <YourPlayersToday hasLiveGames={hasLiveGames} />}
 
-      {!loading && !error && games.length > 0 && (
-        <div className={styles.grid}>
-          {sortedGames.map((game) => (
-            <GameCard key={game.gamePk} game={game} />
-          ))}
-        </div>
+          {games.length === 0 ? (
+            <p className={styles.empty}>No games scheduled today</p>
+          ) : (
+            <div className={styles.grid}>
+              {sortedGames.map((game) => (
+                <GameCard key={game.gamePk} game={game} />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -15,6 +15,8 @@ export interface TendencyEntry {
   zone: number;
   frequency: number;
   usagePct: number;
+  avgVelocity: number | null;
+  batterHand: string;
 }
 
 export interface BatterVsPitchRow {

@@ -1,7 +1,13 @@
 import type { ReactNode } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { PlayerPhoto } from './PlayerPhoto';
 import styles from './Panel.module.css';
+
+export interface PanelPlayer {
+  id: number;
+  name: string;
+}
 
 interface PanelProps {
   id: string;
@@ -10,6 +16,7 @@ interface PanelProps {
   collapsed: boolean;
   onToggleCollapse: () => void;
   sortable?: boolean;
+  players?: PanelPlayer[];
 }
 
 export function Panel({
@@ -19,6 +26,7 @@ export function Panel({
   collapsed,
   onToggleCollapse,
   sortable = false,
+  players,
 }: PanelProps) {
   const {
     attributes,
@@ -56,6 +64,16 @@ export function Panel({
             </div>
           )}
           <span className={styles.title}>{title}</span>
+          {players && players.length > 0 && (
+            <div className={styles.playerTags}>
+              {players.map((p) => (
+                <div key={p.id} className={styles.playerTag}>
+                  <PlayerPhoto playerId={p.id} size={18} />
+                  <span className={styles.playerName}>{p.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <button
           className={styles.collapseBtn}

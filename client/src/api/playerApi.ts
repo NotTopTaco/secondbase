@@ -51,7 +51,7 @@ export async function fetchTendencies(
       try {
         const dist = JSON.parse(r.zone_distribution) as Record<string, number>;
         for (const [zone, freq] of Object.entries(dist)) {
-          entries.push({ pitchType: r.pitch_type, zone: parseInt(zone, 10), frequency: freq / 100, usagePct: r.usage_pct ?? 0 });
+          entries.push({ pitchType: r.pitch_type, zone: parseInt(zone, 10), frequency: freq / 100, usagePct: r.usage_pct ?? 0, avgVelocity: r.avg_velocity, batterHand: r.batter_hand });
         }
       } catch { /* skip malformed */ }
     }

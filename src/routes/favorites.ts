@@ -7,6 +7,7 @@ import {
   getFavoriteTeams,
   getFavoritePlayers,
 } from '../services/favoritesService.js';
+import { getPlayersToday } from '../services/playersTodayService.js';
 
 export const favoritesRouter = Router();
 
@@ -58,4 +59,9 @@ favoritesRouter.get('/teams', (req, res) => {
 favoritesRouter.get('/players', (req, res) => {
   const playerIds = getFavoritePlayers(req.userId!);
   res.json({ playerIds });
+});
+
+favoritesRouter.get('/players-today', async (req, res) => {
+  const players = await getPlayersToday(req.userId!);
+  res.json({ players });
 });
