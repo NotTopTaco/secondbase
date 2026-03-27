@@ -44,22 +44,25 @@ export function getPitchMovement(playerId: number, season?: number): PitchMoveme
      WHERE season = ? AND pitcher_hand = ?`
   ).all(s, hand) as LeaguePitchAverage[];
 
+  // Convert feet → inches (Statcast pfx_x/pfx_z are in feet)
   const pitcher: PitchMovementPoint[] = tendencies
     .filter(t => t.avg_h_break != null && t.avg_v_break != null)
     .map(t => ({
       pitchType: t.pitch_type,
-      hBreak: t.avg_h_break!,
-      vBreak: t.avg_v_break!,
+      hBreak: t.avg_h_break! * 12,
+      vBreak: t.avg_v_break! * 12,
       velocity: t.avg_velocity ?? 0,
       usagePct: t.usage_pct ?? 0,
     }));
 
+  // Only include league averages for pitch types the pitcher actually throws
+  const pitcherPitchTypes = new Set(tendencies.map(t => t.pitch_type));
   const leagueAvg: PitchMovementPoint[] = leagueAvgs
-    .filter(l => l.avg_h_break != null && l.avg_v_break != null)
+    .filter(l => pitcherPitchTypes.has(l.pitch_type) && l.avg_h_break != null && l.avg_v_break != null)
     .map(l => ({
       pitchType: l.pitch_type,
-      hBreak: l.avg_h_break!,
-      vBreak: l.avg_v_break!,
+      hBreak: l.avg_h_break! * 12,
+      vBreak: l.avg_v_break! * 12,
       velocity: l.avg_velocity ?? 0,
       usagePct: 0,
     }));

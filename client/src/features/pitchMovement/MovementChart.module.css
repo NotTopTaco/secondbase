@@ -1,7 +1,7 @@
 .container {
   width: 100%;
   aspect-ratio: 1 / 1;
-  min-height: 280px;
+  min-height: 220px;
 }
 
 .svg {
