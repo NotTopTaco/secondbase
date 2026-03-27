@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { ScheduleGame } from '../../api/gameApi';
+import { PlayerPhoto } from '../../components/ui/PlayerPhoto';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { TeamLogo } from '../../components/ui/TeamLogo';
 import { getTeamColors } from '../../theme/teamColors';
@@ -10,6 +11,12 @@ interface GameCardProps {
 }
 
 const BRAVES_ID = 144;
+
+function shortenName(fullName: string): string {
+  const parts = fullName.split(' ');
+  if (parts.length < 2) return fullName;
+  return `${parts[0][0]}. ${parts.slice(1).join(' ')}`;
+}
 
 function getStatusLabel(status: string): 'Live' | 'Preview' | 'Final' | 'Delayed' {
   switch (status) {
@@ -79,6 +86,25 @@ export function GameCard({ game }: GameCardProps) {
         </div>
         <StatusBadge status={statusLabel} />
       </div>
+      {!showScores && away.probablePitcher && home.probablePitcher && (
+        <div className={styles.matchup}>
+          <PlayerPhoto playerId={away.probablePitcher.id} size={24} />
+          <span>{shortenName(away.probablePitcher.fullName)}</span>
+          <span className={styles.vs}>vs</span>
+          <span>{shortenName(home.probablePitcher.fullName)}</span>
+          <PlayerPhoto playerId={home.probablePitcher.id} size={24} />
+        </div>
+      )}
+      {isLive && game.linescore?.offense?.batter && game.linescore?.defense?.pitcher && (
+        <div className={styles.atBat}>
+          <span className={styles.inning}>
+            {game.linescore.inningHalf === 'Top' ? 'Top' : 'Bot'} {game.linescore.currentInningOrdinal}
+          </span>
+          {' — '}
+          {shortenName(game.linescore.offense.batter.fullName)} vs{' '}
+          {shortenName(game.linescore.defense.pitcher.fullName)}
+        </div>
+      )}
       <div className={styles.meta}>
         {game.venue && <span className={styles.venue}>{game.venue.name}</span>}
         {!showScores && <span className={styles.time}>{gameTime}</span>}

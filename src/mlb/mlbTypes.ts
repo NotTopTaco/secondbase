@@ -20,12 +20,14 @@ export interface MlbScheduleGame {
     home: MlbTeamInfo;
   };
   venue: { name: string };
+  linescore?: MlbLinescore;
 }
 
 export interface MlbTeamInfo {
   team: { id: number; name: string };
   score?: number;
   leagueRecord?: { wins: number; losses: number };
+  probablePitcher?: { id: number; fullName: string };
 }
 
 export interface MlbLiveFeed {

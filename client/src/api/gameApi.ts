@@ -9,12 +9,21 @@ export interface ScheduleGame {
       team: { id: number; name: string; abbreviation?: string };
       score?: number;
       leagueRecord?: { wins: number; losses: number };
+      probablePitcher?: { id: number; fullName: string };
     };
     home: {
       team: { id: number; name: string; abbreviation?: string };
       score?: number;
       leagueRecord?: { wins: number; losses: number };
+      probablePitcher?: { id: number; fullName: string };
     };
+  };
+  linescore?: {
+    currentInning?: number;
+    inningHalf?: string;
+    currentInningOrdinal?: string;
+    offense?: { batter?: { id: number; fullName: string } };
+    defense?: { pitcher?: { id: number; fullName: string } };
   };
   venue?: { name: string };
 }

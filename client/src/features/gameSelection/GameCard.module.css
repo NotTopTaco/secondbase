@@ -118,3 +118,31 @@
   font-size: 11px;
   padding: 0 var(--space-xs);
 }
+
+.matchup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 0 var(--space-sm);
+}
+
+.vs {
+  color: var(--text-muted);
+  opacity: 0.6;
+  font-size: 11px;
+}
+
+.atBat {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 0 var(--space-sm);
+}
+
+.inning {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
