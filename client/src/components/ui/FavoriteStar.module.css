@@ -1,0 +1,7 @@
+.star {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 2px;
+  filter: drop-shadow(0 0 3px rgba(244, 197, 66, 0.5));
+  flex-shrink: 0;
+}
