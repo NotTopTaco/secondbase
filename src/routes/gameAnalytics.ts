@@ -1,88 +1,102 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { getNextPitchPredictions } from '../services/nextPitchService.js';
 import { getWinProbability } from '../services/winProbabilityService.js';
 import { getVelocityData } from '../services/velocityService.js';
 import { getUmpireData } from '../services/umpireService.js';
 import { getBullpenStatus } from '../services/bullpenService.js';
 import { getDefensivePositioning } from '../services/defensivePositioningService.js';
+import { validate, zIntId } from '../middleware/validate.js';
 
 export const gameAnalyticsRouter = Router();
 
-gameAnalyticsRouter.get('/:gamePk/next-pitch', (req, res) => {
-  const gamePk = parseInt(req.params.gamePk, 10);
-  if (isNaN(gamePk)) { res.status(400).json({ error: 'Invalid gamePk' }); return; }
+const gamePkParams = z.object({ gamePk: zIntId });
 
-  const pitcherId = parseInt(req.query.pitcherId as string, 10);
-  const batterHand = (req.query.batterHand as string) || 'R';
-  const balls = parseInt(req.query.balls as string, 10) || 0;
-  const strikes = parseInt(req.query.strikes as string, 10) || 0;
-  const lastPitchType = req.query.lastPitchType as string | undefined;
-
-  if (isNaN(pitcherId)) { res.status(400).json({ error: 'pitcherId required' }); return; }
-
-  const result = getNextPitchPredictions(pitcherId, batterHand, balls, strikes, gamePk, lastPitchType);
-  res.json(result);
+const nextPitchQuery = z.object({
+  pitcherId: z.coerce.number().int().positive({ message: 'pitcherId required' }),
+  batterHand: z.enum(['L', 'R']).default('R'),
+  balls: z.coerce.number().int().min(0).max(3).default(0),
+  strikes: z.coerce.number().int().min(0).max(2).default(0),
+  lastPitchType: z.string().optional(),
 });
 
-gameAnalyticsRouter.get('/:gamePk/win-probability', async (req, res) => {
-  const gamePk = parseInt(req.params.gamePk, 10);
-  if (isNaN(gamePk)) { res.status(400).json({ error: 'Invalid gamePk' }); return; }
+const defensiveQuery = z.object({
+  batterId: z.coerce.number().int().positive({ message: 'batterId required' }),
+});
 
-  try {
-    const result = await getWinProbability(gamePk);
+gameAnalyticsRouter.get(
+  '/:gamePk/next-pitch',
+  validate({ params: gamePkParams, query: nextPitchQuery }),
+  (req, res) => {
+    const { pitcherId, batterHand, balls, strikes, lastPitchType } =
+      req.validatedQuery as z.infer<typeof nextPitchQuery>;
+    const result = getNextPitchPredictions(pitcherId, batterHand, balls, strikes, Number(req.params.gamePk), lastPitchType);
     res.json(result);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to compute win probability' });
-  }
-});
+  },
+);
 
-gameAnalyticsRouter.get('/:gamePk/velocity', async (req, res) => {
-  const gamePk = parseInt(req.params.gamePk, 10);
-  if (isNaN(gamePk)) { res.status(400).json({ error: 'Invalid gamePk' }); return; }
+gameAnalyticsRouter.get(
+  '/:gamePk/win-probability',
+  validate({ params: gamePkParams }),
+  async (req, res) => {
+    try {
+      const result = await getWinProbability(Number(req.params.gamePk));
+      res.json(result);
+    } catch {
+      res.status(500).json({ error: 'Failed to compute win probability' });
+    }
+  },
+);
 
-  try {
-    const result = await getVelocityData(gamePk);
-    res.json(result);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to get velocity data' });
-  }
-});
+gameAnalyticsRouter.get(
+  '/:gamePk/velocity',
+  validate({ params: gamePkParams }),
+  async (req, res) => {
+    try {
+      const result = await getVelocityData(Number(req.params.gamePk));
+      res.json(result);
+    } catch {
+      res.status(500).json({ error: 'Failed to get velocity data' });
+    }
+  },
+);
 
-gameAnalyticsRouter.get('/:gamePk/umpire', async (req, res) => {
-  const gamePk = parseInt(req.params.gamePk, 10);
-  if (isNaN(gamePk)) { res.status(400).json({ error: 'Invalid gamePk' }); return; }
+gameAnalyticsRouter.get(
+  '/:gamePk/umpire',
+  validate({ params: gamePkParams }),
+  async (req, res) => {
+    try {
+      const result = await getUmpireData(Number(req.params.gamePk));
+      res.json(result);
+    } catch {
+      res.status(500).json({ error: 'Failed to get umpire data' });
+    }
+  },
+);
 
-  try {
-    const result = await getUmpireData(gamePk);
-    res.json(result);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to get umpire data' });
-  }
-});
+gameAnalyticsRouter.get(
+  '/:gamePk/bullpen',
+  validate({ params: gamePkParams }),
+  async (req, res) => {
+    try {
+      const result = await getBullpenStatus(Number(req.params.gamePk));
+      res.json(result);
+    } catch {
+      res.status(500).json({ error: 'Failed to get bullpen status' });
+    }
+  },
+);
 
-gameAnalyticsRouter.get('/:gamePk/bullpen', async (req, res) => {
-  const gamePk = parseInt(req.params.gamePk, 10);
-  if (isNaN(gamePk)) { res.status(400).json({ error: 'Invalid gamePk' }); return; }
-
-  try {
-    const result = await getBullpenStatus(gamePk);
-    res.json(result);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to get bullpen status' });
-  }
-});
-
-gameAnalyticsRouter.get('/:gamePk/defensive-positioning', async (req, res) => {
-  const gamePk = parseInt(req.params.gamePk, 10);
-  if (isNaN(gamePk)) { res.status(400).json({ error: 'Invalid gamePk' }); return; }
-
-  const batterId = parseInt(req.query.batterId as string, 10);
-  if (isNaN(batterId)) { res.status(400).json({ error: 'batterId required' }); return; }
-
-  try {
-    const result = await getDefensivePositioning(gamePk, batterId);
-    res.json(result);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to get defensive positioning' });
-  }
-});
+gameAnalyticsRouter.get(
+  '/:gamePk/defensive-positioning',
+  validate({ params: gamePkParams, query: defensiveQuery }),
+  async (req, res) => {
+    const { batterId } = req.validatedQuery as z.infer<typeof defensiveQuery>;
+    try {
+      const result = await getDefensivePositioning(Number(req.params.gamePk), batterId);
+      res.json(result);
+    } catch {
+      res.status(500).json({ error: 'Failed to get defensive positioning' });
+    }
+  },
+);

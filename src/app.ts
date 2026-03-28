@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import corsMiddleware from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config.js';
@@ -16,6 +17,7 @@ import { gameAnalyticsRouter } from './routes/gameAnalytics.js';
 export function createApp() {
   const app = express();
 
+  app.use(compression());
   app.use(corsMiddleware({ origin: config.CORS_ORIGIN, credentials: true }));
   app.use(express.json());
   app.use(cookieParser());

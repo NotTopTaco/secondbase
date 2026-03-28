@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import {
   getPlayerWithFallback,
   getHotZones,
@@ -13,115 +14,125 @@ import { getCountStats } from '../services/countStatsService.js';
 import { getStreak } from '../services/streakService.js';
 import { getPitchTunneling } from '../services/tunnelingService.js';
 import { getMatchupHistory } from '../services/matchupService.js';
+import { validate, zIntId, zOptionalInt, zOptionalString } from '../middleware/validate.js';
 
 export const playersRouter = Router();
 
-playersRouter.get('/search', (req, res) => {
-  const q = (req.query.q as string || '').trim();
-  if (q.length < 2) {
-    res.json({ results: [] });
-    return;
-  }
-  res.json({ results: searchPlayers(q) });
+const idParams = z.object({ id: zIntId });
+
+const searchQuery = z.object({
+  q: z.string().min(2),
 });
 
-playersRouter.get('/:id', async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
+const seasonQuery = z.object({
+  season: zOptionalInt,
+});
 
+const hotZonesQuery = z.object({
+  season: zOptionalInt,
+  period: zOptionalString,
+});
+
+const tendenciesQuery = z.object({
+  season: zOptionalInt,
+  batterHand: zOptionalString,
+});
+
+const vsPitchQuery = z.object({
+  season: zOptionalInt,
+  hand: zOptionalString,
+});
+
+const sprayChartQuery = z.object({
+  season: zOptionalInt,
+  pitchType: zOptionalString,
+  hand: zOptionalString,
+});
+
+const streakQuery = z.object({
+  pitcherId: zOptionalInt,
+  season: zOptionalInt,
+});
+
+const batterBundleQuery = z.object({
+  pitcherId: z.coerce.number().int().positive({ message: 'pitcherId required' }),
+  season: zOptionalInt,
+});
+
+const pitcherBundleQuery = z.object({
+  season: zOptionalInt,
+  batterHand: zOptionalString,
+});
+
+playersRouter.get('/search', validate({ query: searchQuery }), (req, res) => {
+  const { q } = req.validatedQuery as z.infer<typeof searchQuery>;
+  res.json({ results: searchPlayers(q.trim()) });
+});
+
+playersRouter.get('/:id', validate({ params: idParams }), async (req, res) => {
+  const id = Number(req.params.id);
   const player = await getPlayerWithFallback(id);
   if (!player) { res.status(404).json({ error: 'Player not found' }); return; }
   res.json(player);
 });
 
-playersRouter.get('/:id/hot-zones', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
-  const period = req.query.period as string | undefined;
+playersRouter.get('/:id/hot-zones', validate({ params: idParams, query: hotZonesQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season, period } = req.validatedQuery as z.infer<typeof hotZonesQuery>;
   res.json(getHotZones(id, season, period));
 });
 
-playersRouter.get('/:id/pitch-tendencies', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
-  const batterHand = req.query.batterHand as string | undefined;
+playersRouter.get('/:id/pitch-tendencies', validate({ params: idParams, query: tendenciesQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season, batterHand } = req.validatedQuery as z.infer<typeof tendenciesQuery>;
   res.json(getPitcherTendencies(id, season, batterHand));
 });
 
-playersRouter.get('/:id/vs-pitch-type', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
-  const hand = req.query.hand as string | undefined;
+playersRouter.get('/:id/vs-pitch-type', validate({ params: idParams, query: vsPitchQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season, hand } = req.validatedQuery as z.infer<typeof vsPitchQuery>;
   res.json(getBatterVsPitchType(id, season, hand));
 });
 
-playersRouter.get('/:id/spray-chart', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
-  const pitchType = req.query.pitchType as string | undefined;
-  const hand = req.query.hand as string | undefined;
+playersRouter.get('/:id/spray-chart', validate({ params: idParams, query: sprayChartQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season, pitchType, hand } = req.validatedQuery as z.infer<typeof sprayChartQuery>;
   res.json(getSprayChart(id, season, pitchType, hand));
 });
 
-playersRouter.get('/:id/tto-splits', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+playersRouter.get('/:id/tto-splits', validate({ params: idParams, query: seasonQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season } = req.validatedQuery as z.infer<typeof seasonQuery>;
   res.json(getTTOSplits(id, season));
 });
 
-playersRouter.get('/:id/pitch-movement', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+playersRouter.get('/:id/pitch-movement', validate({ params: idParams, query: seasonQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season } = req.validatedQuery as z.infer<typeof seasonQuery>;
   res.json(getPitchMovement(id, season));
 });
 
-playersRouter.get('/:id/count-stats', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+playersRouter.get('/:id/count-stats', validate({ params: idParams, query: seasonQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season } = req.validatedQuery as z.infer<typeof seasonQuery>;
   res.json(getCountStats(id, season));
 });
 
-playersRouter.get('/:id/streak', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const pitcherId = req.query.pitcherId ? parseInt(req.query.pitcherId as string, 10) : undefined;
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+playersRouter.get('/:id/streak', validate({ params: idParams, query: streakQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { pitcherId, season } = req.validatedQuery as z.infer<typeof streakQuery>;
   res.json(getStreak(id, pitcherId, season));
 });
 
-playersRouter.get('/:id/pitch-tunneling', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+playersRouter.get('/:id/pitch-tunneling', validate({ params: idParams, query: seasonQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season } = req.validatedQuery as z.infer<typeof seasonQuery>;
   res.json(getPitchTunneling(id, season));
 });
 
-// Bundle endpoints: combine multiple data fetches into single HTTP requests
-
-playersRouter.get('/:id/batter-bundle', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const pitcherId = parseInt(req.query.pitcherId as string, 10);
-  if (isNaN(id) || isNaN(pitcherId)) {
-    res.status(400).json({ error: 'Invalid player ID or pitcherId' });
-    return;
-  }
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
+playersRouter.get('/:id/batter-bundle', validate({ params: idParams, query: batterBundleQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { pitcherId, season } = req.validatedQuery as z.infer<typeof batterBundleQuery>;
 
   res.json({
     hotZones: getHotZones(id, season),
@@ -133,12 +144,9 @@ playersRouter.get('/:id/batter-bundle', (req, res) => {
   });
 });
 
-playersRouter.get('/:id/pitcher-bundle', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (isNaN(id)) { res.status(400).json({ error: 'Invalid player ID' }); return; }
-
-  const season = req.query.season ? parseInt(req.query.season as string, 10) : undefined;
-  const batterHand = req.query.batterHand as string | undefined;
+playersRouter.get('/:id/pitcher-bundle', validate({ params: idParams, query: pitcherBundleQuery }), (req, res) => {
+  const id = Number(req.params.id);
+  const { season, batterHand } = req.validatedQuery as z.infer<typeof pitcherBundleQuery>;
 
   res.json({
     tendencies: getPitcherTendencies(id, season, batterHand),

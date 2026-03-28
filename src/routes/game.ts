@@ -1,14 +1,15 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import { getLiveFeed } from '../services/gameService.js';
+import { validate, zIntId } from '../middleware/validate.js';
 
 export const gameRouter = Router();
 
-gameRouter.get('/:gamePk/live', async (req, res) => {
-  const gamePk = parseInt(req.params.gamePk, 10);
-  if (isNaN(gamePk)) {
-    res.status(400).json({ error: 'Invalid gamePk' });
-    return;
-  }
-  const data = await getLiveFeed(gamePk);
-  res.json(data);
-});
+gameRouter.get(
+  '/:gamePk/live',
+  validate({ params: z.object({ gamePk: zIntId }) }),
+  async (req, res) => {
+    const data = await getLiveFeed(Number(req.params.gamePk));
+    res.json(data);
+  },
+);

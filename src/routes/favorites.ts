@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { z } from 'zod';
 import {
   addFavoriteTeam,
   removeFavoriteTeam,
@@ -8,46 +9,30 @@ import {
   getFavoritePlayers,
 } from '../services/favoritesService.js';
 import { getPlayersToday } from '../services/playersTodayService.js';
+import { validate, zIntId } from '../middleware/validate.js';
 
 export const favoritesRouter = Router();
 
-favoritesRouter.put('/teams/:teamId', (req, res) => {
-  const teamId = Number(req.params.teamId);
-  if (!Number.isInteger(teamId)) {
-    res.status(400).json({ error: 'Invalid team ID' });
-    return;
-  }
-  addFavoriteTeam(req.userId!, teamId);
+const teamParams = z.object({ teamId: zIntId });
+const playerParams = z.object({ playerId: zIntId });
+
+favoritesRouter.put('/teams/:teamId', validate({ params: teamParams }), (req, res) => {
+  addFavoriteTeam(req.userId!, Number(req.params.teamId));
   res.json({ ok: true });
 });
 
-favoritesRouter.delete('/teams/:teamId', (req, res) => {
-  const teamId = Number(req.params.teamId);
-  if (!Number.isInteger(teamId)) {
-    res.status(400).json({ error: 'Invalid team ID' });
-    return;
-  }
-  removeFavoriteTeam(req.userId!, teamId);
+favoritesRouter.delete('/teams/:teamId', validate({ params: teamParams }), (req, res) => {
+  removeFavoriteTeam(req.userId!, Number(req.params.teamId));
   res.json({ ok: true });
 });
 
-favoritesRouter.put('/players/:playerId', (req, res) => {
-  const playerId = Number(req.params.playerId);
-  if (!Number.isInteger(playerId)) {
-    res.status(400).json({ error: 'Invalid player ID' });
-    return;
-  }
-  addFavoritePlayer(req.userId!, playerId);
+favoritesRouter.put('/players/:playerId', validate({ params: playerParams }), (req, res) => {
+  addFavoritePlayer(req.userId!, Number(req.params.playerId));
   res.json({ ok: true });
 });
 
-favoritesRouter.delete('/players/:playerId', (req, res) => {
-  const playerId = Number(req.params.playerId);
-  if (!Number.isInteger(playerId)) {
-    res.status(400).json({ error: 'Invalid player ID' });
-    return;
-  }
-  removeFavoritePlayer(req.userId!, playerId);
+favoritesRouter.delete('/players/:playerId', validate({ params: playerParams }), (req, res) => {
+  removeFavoritePlayer(req.userId!, Number(req.params.playerId));
   res.json({ ok: true });
 });
 
