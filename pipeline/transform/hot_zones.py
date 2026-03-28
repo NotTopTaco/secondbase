@@ -57,7 +57,10 @@ def _filter_by_period(df: pd.DataFrame, period: str) -> pd.DataFrame:
             return df
         df = df.copy()
         df["game_date"] = pd.to_datetime(df["game_date"], errors="coerce")
-        cutoff = datetime.now() - timedelta(days=30)
+        max_date = df["game_date"].max()
+        if pd.isna(max_date):
+            return df
+        cutoff = max_date - timedelta(days=30)
         return df[df["game_date"] >= cutoff]
 
     return df

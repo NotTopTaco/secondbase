@@ -134,7 +134,12 @@ def run_full(season: int) -> None:
         players_df = transform_players(raw_players)
 
         logger.info("--- TRANSFORM: Hot Zones ---")
-        hot_zones_df = transform_hot_zones(statcast_df, season, period="season")
+        hot_zones_season = transform_hot_zones(statcast_df, season, period="season")
+        hot_zones_last30 = transform_hot_zones(statcast_df, season, period="last30")
+        hot_zones_career = transform_hot_zones(statcast_df, season, period="career")
+        hot_zones_df = pd.concat(
+            [hot_zones_season, hot_zones_last30, hot_zones_career], ignore_index=True
+        )
 
         logger.info("--- TRANSFORM: Pitcher Tendencies ---")
         pitcher_tend_df = transform_pitcher_tendencies(statcast_df, season)
