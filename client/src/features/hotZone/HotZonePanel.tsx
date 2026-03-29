@@ -18,7 +18,6 @@ const METRIC_OPTIONS = [
 const PERIOD_OPTIONS = [
   { value: 'season', label: 'Season' },
   { value: 'last30', label: 'Last 30' },
-  { value: 'career', label: 'Career' },
 ];
 
 export function HotZonePanel() {

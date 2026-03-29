@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS batter_game_stats (
   player_id INTEGER NOT NULL,
   season INTEGER NOT NULL,
   game_date TEXT NOT NULL,
-  game_pk INTEGER,
+  game_pk INTEGER NOT NULL,
   pa INTEGER DEFAULT 0,
   ab INTEGER DEFAULT 0,
   h INTEGER DEFAULT 0,
@@ -225,7 +225,7 @@ CREATE TABLE IF NOT EXISTS batter_game_stats (
   woba_value_sum REAL DEFAULT 0,
   woba_denom_sum REAL DEFAULT 0,
   avg_exit_velo REAL,
-  PRIMARY KEY (player_id, season, game_date),
+  PRIMARY KEY (player_id, season, game_pk),
   FOREIGN KEY (player_id) REFERENCES players(player_id)
 );
 
@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS pitcher_game_stats (
   player_id INTEGER NOT NULL,
   season INTEGER NOT NULL,
   game_date TEXT NOT NULL,
-  game_pk INTEGER,
+  game_pk INTEGER NOT NULL,
   pa_against INTEGER DEFAULT 0,
   ab_against INTEGER DEFAULT 0,
   h_against INTEGER DEFAULT 0,
@@ -242,7 +242,7 @@ CREATE TABLE IF NOT EXISTS pitcher_game_stats (
   k INTEGER DEFAULT 0,
   outs_recorded INTEGER DEFAULT 0,
   game_score INTEGER,
-  PRIMARY KEY (player_id, season, game_date),
+  PRIMARY KEY (player_id, season, game_pk),
   FOREIGN KEY (player_id) REFERENCES players(player_id)
 );
 

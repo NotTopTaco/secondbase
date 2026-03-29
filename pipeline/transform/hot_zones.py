@@ -49,7 +49,11 @@ _PA_RELEVANT_DESCRIPTIONS = {
 
 def _filter_by_period(df: pd.DataFrame, period: str) -> pd.DataFrame:
     """Filter the DataFrame by the specified period."""
-    if period == "season" or period == "career":
+    if period == "career":
+        logger.warning("Career period not supported; returning empty DataFrame")
+        return df.iloc[0:0]
+
+    if period == "season":
         return df
 
     if period == "last30":

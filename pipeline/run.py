@@ -3,6 +3,7 @@
 Usage:
     python -m pipeline.run --full --season 2026
     python -m pipeline.run --incremental --days 7
+    python -m pipeline.run --refresh-aggregates --season 2026
 """
 
 import argparse
@@ -49,8 +50,8 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 from pipeline.db import create_tables, get_connection  # noqa: E402
-from pipeline.fetch.savant import fetch_statcast  # noqa: E402
-from pipeline.fetch.mlb_api import fetch_all_players  # noqa: E402
+from pipeline.fetch.savant import fetch_statcast, load_cached_statcast  # noqa: E402
+from pipeline.fetch.mlb_api import fetch_all_players, fetch_umpire_assignments  # noqa: E402
 from pipeline.transform.players import transform_players  # noqa: E402
 from pipeline.transform.hot_zones import transform_hot_zones  # noqa: E402
 from pipeline.transform.pitcher_tendencies import transform_pitcher_tendencies  # noqa: E402
@@ -100,6 +101,15 @@ def _record_run_end(
     conn.commit()
 
 
+def _record_state(conn, key: str) -> None:
+    """Write a timestamp to pipeline_state for freshness tracking."""
+    conn.execute(
+        "INSERT OR REPLACE INTO pipeline_state (key, value) VALUES (?, ?)",
+        (key, datetime.now().isoformat()),
+    )
+    conn.commit()
+
+
 # ---------------------------------------------------------------------------
 # Full pipeline
 # ---------------------------------------------------------------------------
@@ -127,7 +137,10 @@ def run_full(season: int) -> None:
         today = datetime.now().strftime("%Y-%m-%d")
         end_of_season = f"{season}-11-15"
         end_date = min(today, end_of_season)
-        statcast_df = fetch_statcast(start_date, end_date)
+        statcast_df = fetch_statcast(start_date, end_date, strict=False)
+
+        logger.info("--- FETCH: Umpire Assignments ---")
+        umpire_assignments_df = fetch_umpire_assignments(season, start_date, end_date)
 
         # --- Transform ---
         logger.info("--- TRANSFORM: Players ---")
@@ -136,9 +149,8 @@ def run_full(season: int) -> None:
         logger.info("--- TRANSFORM: Hot Zones ---")
         hot_zones_season = transform_hot_zones(statcast_df, season, period="season")
         hot_zones_last30 = transform_hot_zones(statcast_df, season, period="last30")
-        hot_zones_career = transform_hot_zones(statcast_df, season, period="career")
         hot_zones_df = pd.concat(
-            [hot_zones_season, hot_zones_last30, hot_zones_career], ignore_index=True
+            [hot_zones_season, hot_zones_last30], ignore_index=True
         )
 
         logger.info("--- TRANSFORM: Pitcher Tendencies ---")
@@ -163,7 +175,9 @@ def run_full(season: int) -> None:
         tto_df = transform_tto_splits(statcast_df, season)
 
         logger.info("--- TRANSFORM: Umpire Zones ---")
-        umpires_df, umpire_zones_df, umpire_stats_df = transform_umpire_zones(statcast_df, season)
+        umpires_df, umpire_zones_df, umpire_stats_df = transform_umpire_zones(
+            statcast_df, season, umpire_assignments_df
+        )
 
         logger.info("--- TRANSFORM: League Averages ---")
         league_avg_df = transform_league_averages(statcast_df, season)
@@ -205,6 +219,7 @@ def run_full(season: int) -> None:
         total_rows = load_all(conn, transformed)
 
         _record_run_end(conn, run_id, "completed", total_rows)
+        _record_state(conn, "last_full_run")
         logger.info("Full pipeline completed: %d total rows loaded", total_rows)
 
     except Exception as exc:
@@ -241,7 +256,7 @@ def run_incremental(season: int, days: int = 7) -> None:
         start_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
 
         logger.info("--- FETCH: Statcast (%s to %s) ---", start_date, end_date)
-        statcast_df = fetch_statcast(start_date, end_date)
+        statcast_df = fetch_statcast(start_date, end_date, strict=True)
 
         if statcast_df.empty:
             logger.info("No new Statcast data, nothing to update")
@@ -283,12 +298,125 @@ def run_incremental(season: int, days: int = 7) -> None:
         total_rows = load_all(conn, transformed)
 
         _record_run_end(conn, run_id, "completed", total_rows)
+        _record_state(conn, "last_incremental_run")
         logger.info(
             "Incremental pipeline completed: %d total rows loaded", total_rows
         )
 
     except Exception as exc:
         logger.exception("Incremental pipeline failed")
+        _record_run_end(conn, run_id, "failed", total_rows, str(exc))
+        raise
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Aggregate refresh pipeline
+# ---------------------------------------------------------------------------
+
+
+def run_refresh_aggregates(season: int) -> None:
+    """Recompute aggregate tables from cached Parquet data (no network fetch)."""
+    logger.info("=" * 60)
+    logger.info("Starting AGGREGATE REFRESH for season %d", season)
+    logger.info("=" * 60)
+
+    create_tables()
+    conn = get_connection()
+    run_id = _record_run_start(conn, "aggregate_refresh")
+    total_rows = 0
+
+    try:
+        # Load full-season Statcast data from Parquet cache
+        logger.info("--- LOAD CACHED STATCAST ---")
+        statcast_df = load_cached_statcast(season)
+
+        if statcast_df.empty:
+            logger.error(
+                "No cached Statcast data for season %d. "
+                "Run --full first to populate the cache.",
+                season,
+            )
+            _record_run_end(conn, run_id, "failed", 0, "No cached data")
+            conn.close()
+            return
+
+        # Load umpire assignments from cache (uses cached Parquet if fresh)
+        logger.info("--- LOAD UMPIRE ASSIGNMENTS ---")
+        start_date = f"{season}-02-20"
+        today = datetime.now().strftime("%Y-%m-%d")
+        end_of_season = f"{season}-11-15"
+        end_date = min(today, end_of_season)
+        umpire_assignments_df = fetch_umpire_assignments(season, start_date, end_date)
+
+        # Run aggregate transforms only
+        logger.info("--- TRANSFORM: Hot Zones ---")
+        hot_zones_season = transform_hot_zones(statcast_df, season, period="season")
+        hot_zones_last30 = transform_hot_zones(statcast_df, season, period="last30")
+        hot_zones_df = pd.concat(
+            [hot_zones_season, hot_zones_last30], ignore_index=True
+        )
+
+        logger.info("--- TRANSFORM: Pitcher Tendencies ---")
+        pitcher_tend_df = transform_pitcher_tendencies(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Batter vs Pitch Type ---")
+        bvpt_df = transform_batter_vs_pitch(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Next Pitch Tendencies ---")
+        next_pitch_df = transform_next_pitch(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Win Expectancy ---")
+        win_exp_df = transform_win_expectancy(statcast_df, season)
+
+        logger.info("--- TRANSFORM: TTO Splits ---")
+        tto_df = transform_tto_splits(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Umpire Zones ---")
+        umpires_df, umpire_zones_df, umpire_stats_df = transform_umpire_zones(
+            statcast_df, season, umpire_assignments_df
+        )
+
+        logger.info("--- TRANSFORM: League Averages ---")
+        league_avg_df = transform_league_averages(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Batter Count Stats ---")
+        batter_count_df = transform_batter_count_stats(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Defensive Alignment ---")
+        def_align_df = transform_defensive_alignment(statcast_df, season)
+
+        logger.info("--- TRANSFORM: Pitch Tunneling ---")
+        tunneling_df = transform_pitch_tunneling(statcast_df, season)
+
+        # Load aggregate tables
+        logger.info("--- LOAD ---")
+        transformed = {
+            "batter_hot_zones": hot_zones_df,
+            "pitcher_tendencies": pitcher_tend_df,
+            "batter_vs_pitch_type": bvpt_df,
+            "pitcher_count_tendencies": next_pitch_df,
+            "win_expectancy": win_exp_df,
+            "pitcher_tto_splits": tto_df,
+            "umpires": umpires_df,
+            "umpire_zones": umpire_zones_df,
+            "umpire_stats": umpire_stats_df,
+            "league_pitch_averages": league_avg_df,
+            "batter_count_stats": batter_count_df,
+            "batter_defensive_alignment": def_align_df,
+            "pitch_tunneling": tunneling_df,
+        }
+        total_rows = load_all(conn, transformed)
+
+        _record_run_end(conn, run_id, "completed", total_rows)
+        _record_state(conn, "last_aggregate_refresh")
+        logger.info(
+            "Aggregate refresh completed: %d total rows loaded", total_rows
+        )
+
+    except Exception as exc:
+        logger.exception("Aggregate refresh failed")
         _record_run_end(conn, run_id, "failed", total_rows, str(exc))
         raise
     finally:
@@ -316,6 +444,11 @@ def main() -> None:
         action="store_true",
         help="Run an incremental update for the last N days",
     )
+    mode.add_argument(
+        "--refresh-aggregates",
+        action="store_true",
+        help="Recompute aggregate tables from cached data (no network fetch)",
+    )
     parser.add_argument(
         "--season",
         type=int,
@@ -335,6 +468,8 @@ def main() -> None:
         run_full(args.season)
     elif args.incremental:
         run_incremental(args.season, args.days)
+    elif args.refresh_aggregates:
+        run_refresh_aggregates(args.season)
 
 
 if __name__ == "__main__":

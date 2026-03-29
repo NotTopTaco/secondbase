@@ -43,11 +43,12 @@ def transform_streak_stats(
 
 
 def _transform_batter_game_stats(pa_df: pd.DataFrame, season: int) -> pd.DataFrame:
-    """One row per (batter, game_date) with counting stats."""
-    grouped = pa_df.groupby(["batter", "game_date"])
+    """One row per (batter, game_pk) with counting stats."""
+    grouped = pa_df.groupby(["batter", "game_pk"])
 
     rows = []
-    for (batter_id, game_date), g in grouped:
+    for (batter_id, game_pk_val), g in grouped:
+        game_date = str(g["game_date"].iloc[0])
         pa = len(g)
         ab = pa - g["is_non_ab"].sum()
         h = g["is_hit"].sum()
@@ -63,14 +64,11 @@ def _transform_batter_game_stats(pa_df: pd.DataFrame, season: int) -> pd.DataFra
         ev = g["launch_speed"].dropna()
         avg_exit_velo = float(ev.mean()) if not ev.empty else None
 
-        # Use the first game_pk for the date (handles doubleheaders by merging)
-        game_pk = int(g["game_pk"].iloc[0]) if "game_pk" in g.columns and not g["game_pk"].isna().all() else None
-
         rows.append({
             "player_id": int(batter_id),
             "season": season,
-            "game_date": str(game_date),
-            "game_pk": game_pk,
+            "game_date": game_date,
+            "game_pk": int(game_pk_val),
             "pa": int(pa),
             "ab": int(ab),
             "h": int(h),
@@ -88,11 +86,12 @@ def _transform_batter_game_stats(pa_df: pd.DataFrame, season: int) -> pd.DataFra
 
 
 def _transform_pitcher_game_stats(pa_df: pd.DataFrame, season: int) -> pd.DataFrame:
-    """One row per (pitcher, game_date) with counting stats and game score."""
-    grouped = pa_df.groupby(["pitcher", "game_date"])
+    """One row per (pitcher, game_pk) with counting stats and game score."""
+    grouped = pa_df.groupby(["pitcher", "game_pk"])
 
     rows = []
-    for (pitcher_id, game_date), g in grouped:
+    for (pitcher_id, game_pk_val), g in grouped:
+        game_date = str(g["game_date"].iloc[0])
         pa_against = len(g)
         ab_against = pa_against - g["is_non_ab"].sum()
         h_against = g["is_hit"].sum()
@@ -103,7 +102,6 @@ def _transform_pitcher_game_stats(pa_df: pd.DataFrame, season: int) -> pd.DataFr
         # Outs recorded: at-bats minus hits, plus sac plays
         # This is an approximation: PA - H - BB - HBP - errors ≈ outs
         sac_events = {"sac_fly", "sac_bunt", "sac_fly_double_play", "sac_bunt_double_play"}
-        error_events = {"field_error"}
         outs_from_ab = ab_against - h_against
         sac_outs = g["events"].isin(sac_events).sum()
         # double plays count as 2 outs
@@ -115,13 +113,11 @@ def _transform_pitcher_game_stats(pa_df: pd.DataFrame, season: int) -> pd.DataFr
         # Simplified Game Score: 50 + outs + 2*K - 2*H - 4*HR - 2*BB
         game_score = int(50 + outs_recorded + 2 * k - 2 * h_against - 4 * hr_against - 2 * bb_against)
 
-        game_pk = int(g["game_pk"].iloc[0]) if "game_pk" in g.columns and not g["game_pk"].isna().all() else None
-
         rows.append({
             "player_id": int(pitcher_id),
             "season": season,
-            "game_date": str(game_date),
-            "game_pk": game_pk,
+            "game_date": game_date,
+            "game_pk": int(game_pk_val),
             "pa_against": int(pa_against),
             "ab_against": int(ab_against),
             "h_against": int(h_against),

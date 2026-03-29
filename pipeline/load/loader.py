@@ -7,6 +7,8 @@ import sqlite3
 import numpy as np
 import pandas as pd
 
+from pipeline.validation import validate_before_load
+
 logger = logging.getLogger(__name__)
 
 # Table load order respects foreign key dependencies
@@ -65,6 +67,15 @@ def load_table(
         logger.info("  %s: no data to load, skipping", table_name)
         return 0
 
+    # Validate schema before loading
+    warnings, df = validate_before_load(table_name, df)
+    for w in warnings:
+        logger.warning("  %s validation: %s", table_name, w)
+
+    if df.empty:
+        logger.info("  %s: no valid rows after validation, skipping", table_name)
+        return 0
+
     columns = list(df.columns)
     placeholders = ", ".join(["?"] * len(columns))
     col_names = ", ".join(columns)
@@ -121,6 +132,7 @@ def load_all(
             try:
                 loaded = load_table(conn, table_name, df)
                 total_rows += loaded
+                _record_row_count(conn, table_name, loaded)
             except Exception:
                 logger.exception("Failed to load table %s, continuing", table_name)
 
@@ -130,8 +142,21 @@ def load_all(
             try:
                 loaded = load_table(conn, table_name, df)
                 total_rows += loaded
+                _record_row_count(conn, table_name, loaded)
             except Exception:
                 logger.exception("Failed to load table %s, continuing", table_name)
 
     logger.info("Total rows loaded: %d", total_rows)
     return total_rows
+
+
+def _record_row_count(conn: sqlite3.Connection, table_name: str, count: int) -> None:
+    """Store row count in pipeline_state for freshness tracking."""
+    try:
+        conn.execute(
+            "INSERT OR REPLACE INTO pipeline_state (key, value) VALUES (?, ?)",
+            (f"row_count:{table_name}", str(count)),
+        )
+        conn.commit()
+    except Exception:
+        logger.debug("Could not record row count for %s", table_name)

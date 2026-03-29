@@ -6,7 +6,7 @@ interface BatterGameRow {
   player_id: number;
   season: number;
   game_date: string;
-  game_pk: number | null;
+  game_pk: number;
   pa: number;
   ab: number;
   h: number;
@@ -22,7 +22,7 @@ interface PitcherGameRow {
   player_id: number;
   season: number;
   game_date: string;
-  game_pk: number | null;
+  game_pk: number;
   pa_against: number;
   ab_against: number;
   h_against: number;
@@ -74,7 +74,7 @@ function getBatterStreak(playerId: number, season?: number) {
   const s = season || getLatestBatterSeason();
 
   const rows = db.prepare(
-    'SELECT * FROM batter_game_stats WHERE player_id = ? AND season = ? ORDER BY game_date DESC'
+    'SELECT * FROM batter_game_stats WHERE player_id = ? AND season = ? ORDER BY game_date DESC, game_pk DESC'
   ).all(playerId, s) as BatterGameRow[];
 
   if (rows.length === 0) {
@@ -124,7 +124,7 @@ function getPitcherStreak(playerId: number, season?: number) {
   // Single query: CTE computes row numbers + season average in one pass
   const rows = db.prepare(
     `WITH stats AS (
-       SELECT *, ROW_NUMBER() OVER (ORDER BY game_date DESC) AS rn
+       SELECT *, ROW_NUMBER() OVER (ORDER BY game_date DESC, game_pk DESC) AS rn
        FROM pitcher_game_stats WHERE player_id = ? AND season = ?
      ),
      season_avg AS (
