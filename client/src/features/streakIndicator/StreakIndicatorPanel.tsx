@@ -1,6 +1,6 @@
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { useAnalyticsDataStore } from '../../stores/analyticsDataStore';
 import { Spinner } from '../../components/ui/Spinner';
 import { BatterStreak } from './BatterStreak';
@@ -12,8 +12,7 @@ const PANEL_ID = 'streakIndicator';
 export function StreakIndicatorPanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
-  const batter = useGameStore((s) => s.batter);
-  const pitcher = useGameStore((s) => s.pitcher);
+  const { batter, pitcher } = useActiveMatchup();
   const streakData = useAnalyticsDataStore((s) => s.streakData);
   const loading = useAnalyticsDataStore((s) => s.loadingStreak);
 

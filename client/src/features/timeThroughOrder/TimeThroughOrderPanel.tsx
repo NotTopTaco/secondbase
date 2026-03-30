@@ -1,6 +1,6 @@
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { useGameAnalyticsStore } from '../../stores/gameAnalyticsStore';
 import { useAnalyticsDataStore } from '../../stores/analyticsDataStore';
 import { Spinner } from '../../components/ui/Spinner';
@@ -11,7 +11,7 @@ const PANEL_ID = 'timeThroughOrder';
 export function TimeThroughOrderPanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
-  const pitcher = useGameStore((s) => s.pitcher);
+  const { pitcher } = useActiveMatchup();
   const currentPass = useGameAnalyticsStore((s) => s.currentBatterTTOPass);
   const splits = useAnalyticsDataStore((s) => s.pitcherTTOSplits);
   const loading = useAnalyticsDataStore((s) => s.loadingTTOSplits);

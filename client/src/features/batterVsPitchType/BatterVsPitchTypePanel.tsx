@@ -4,7 +4,7 @@ import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { Spinner } from '../../components/ui/Spinner';
 import { usePanelStore } from '../../stores/panelStore';
 import { useMatchupStore } from '../../stores/matchupStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { StatsTable } from './StatsTable';
 
 const PANEL_ID = 'batterVsPitchType';
@@ -28,7 +28,7 @@ export function BatterVsPitchTypePanel() {
   const batterVsPitch = useMatchupStore((s) => s.batterVsPitch);
   const loading = useMatchupStore((s) => s.loadingBatterVsPitch);
   const fetchBatterVsPitch = useMatchupStore((s) => s.fetchBatterVsPitch);
-  const batter = useGameStore((s) => s.batter);
+  const { batter } = useActiveMatchup();
   const batterId = batter?.id ?? null;
 
   useEffect(() => {

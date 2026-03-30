@@ -199,6 +199,7 @@
   gap: var(--space-sm);
   padding: 0 var(--space-md);
   border-left: 1px solid var(--border);
+  position: relative;
 }
 
 .matchupCenter {
@@ -224,6 +225,32 @@
   color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
+}
+
+/* ── Review mode indicator ───────────────────────────────── */
+.zoneMatchupReview {
+  border-color: var(--accent);
+  background: rgba(74, 158, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.reviewBadge {
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--bg-secondary);
+  padding: 0 4px;
+  border-radius: 2px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ── Zone E — Delay Control ──────────────────────────────── */

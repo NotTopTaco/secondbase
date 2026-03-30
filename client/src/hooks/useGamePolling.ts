@@ -4,6 +4,7 @@ import { usePollingStore } from '../stores/pollingStore';
 import { useMatchupStore } from '../stores/matchupStore';
 import { useGameAnalyticsStore } from '../stores/gameAnalyticsStore';
 import { useAnalyticsDataStore } from '../stores/analyticsDataStore';
+import { useReviewStore } from '../stores/reviewStore';
 import { fetchLiveFeed } from '../api/gameApi';
 import { fetchBatterBundle, fetchPitcherBundle } from '../api/playerApi';
 
@@ -37,9 +38,15 @@ export function useGamePolling(gamePk: number | null): UseGamePollingResult {
 
         useGameStore.getState().updateFromFeed(feed);
         useGameAnalyticsStore.getState().updateFromFeed(feed);
+        useReviewStore.getState().updateRosterFromFeed(feed);
         usePollingStore.getState().setConnected(true);
         usePollingStore.getState().setLastUpdated(Date.now());
         setError(null);
+
+        // In review mode, skip live matchup bundle fetches —
+        // the review store handles its own bundle fetches via enterReview()
+        const isReviewMode = useReviewStore.getState().isReviewMode;
+        if (isReviewMode) return;
 
         const batter = useGameStore.getState().batter;
         const pitcher = useGameStore.getState().pitcher;

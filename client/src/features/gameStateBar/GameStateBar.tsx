@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../stores/gameStore';
 import { usePollingStore } from '../../stores/pollingStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { PlayerPhoto } from '../../components/ui/PlayerPhoto';
 import { TeamLogo } from '../../components/ui/TeamLogo';
@@ -27,11 +28,11 @@ export function GameStateBar() {
     inningHalf,
     awayTeam,
     homeTeam,
-    batter,
-    pitcher,
     count,
     runners,
   } = useGameStore();
+
+  const { batter, pitcher, isReviewMode } = useActiveMatchup();
 
   const navigate = useNavigate();
   const delayOffsetS = usePollingStore((s) => s.delayOffsetS);
@@ -141,7 +142,8 @@ export function GameStateBar() {
       </div>
 
       {/* Zone D — Matchup */}
-      <div className={styles.zoneMatchup}>
+      <div className={`${styles.zoneMatchup} ${isReviewMode ? styles.zoneMatchupReview : ''}`}>
+        {isReviewMode && <span className={styles.reviewBadge}>Reviewing</span>}
         {batter && <PlayerPhoto playerId={batter.id} size={32} />}
         <div className={styles.matchupCenter}>
           <span className={styles.playerName} title={batter?.name}>

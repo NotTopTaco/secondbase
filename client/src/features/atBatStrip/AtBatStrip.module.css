@@ -1,0 +1,246 @@
+/* ── Strip container ─────────────────────────────────────── */
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 87px; /* GameStateBar ~55px + TabBar ~32px */
+  z-index: 85;
+  min-height: 36px;
+  padding: 0 var(--space-xs);
+}
+
+.scrollArea {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  flex: 1;
+  padding: var(--space-xs) 0;
+  scrollbar-width: none;
+}
+
+.scrollArea::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Inning divider ──────────────────────────────────────── */
+.inningDivider {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.inningLabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+/* ── At-bat card ─────────────────────────────────────────── */
+.abCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+  transition: background var(--duration-fast), border-color var(--duration-fast);
+  min-width: 52px;
+}
+
+.abCard:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border);
+}
+
+.abCardActive {
+  background: rgba(74, 158, 255, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 6px rgba(74, 158, 255, 0.15);
+}
+
+.batterName {
+  font-size: 9px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--text-secondary);
+  max-width: 56px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+.abCardActive .batterName {
+  color: var(--text-primary);
+}
+
+/* ── Result pill ─────────────────────────────────────────── */
+.resultPill {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.resultHit {
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+}
+
+.resultHR {
+  background: rgba(231, 76, 60, 0.18);
+  color: #e74c3c;
+}
+
+.resultK {
+  background: rgba(96, 96, 112, 0.2);
+  color: var(--text-muted);
+}
+
+.resultBB {
+  background: rgba(74, 158, 255, 0.15);
+  color: var(--accent);
+}
+
+.resultOut {
+  background: rgba(96, 96, 112, 0.12);
+  color: var(--text-muted);
+}
+
+.resultError {
+  background: rgba(243, 156, 18, 0.15);
+  color: var(--warning);
+}
+
+/* ── Live button ─────────────────────────────────────────── */
+.liveBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition: all var(--duration-fast);
+}
+
+.liveBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.liveBtnActive {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.liveBtnReview {
+  border-color: var(--accent);
+  color: var(--accent);
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── Pitcher drawer trigger ──────────────────────────────── */
+.pitcherBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: var(--space-xs);
+  transition: all var(--duration-fast);
+}
+
+.pitcherBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.pitcherBtnOpen {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pitcherCount {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.empty {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 var(--space-sm);
+  white-space: nowrap;
+}
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .strip {
+    top: 70px;
+    min-height: 32px;
+  }
+
+  .abCard {
+    min-width: 44px;
+    padding: 2px 4px;
+  }
+
+  .batterName {
+    font-size: 8px;
+    max-width: 44px;
+  }
+
+  .resultPill {
+    font-size: 8px;
+  }
+}

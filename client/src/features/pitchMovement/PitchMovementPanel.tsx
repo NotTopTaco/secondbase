@@ -1,6 +1,6 @@
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { useAnalyticsDataStore } from '../../stores/analyticsDataStore';
 import { Spinner } from '../../components/ui/Spinner';
 import { MovementChart } from './MovementChart';
@@ -10,7 +10,7 @@ const PANEL_ID = 'pitchMovement';
 export function PitchMovementPanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
-  const pitcher = useGameStore((s) => s.pitcher);
+  const { pitcher } = useActiveMatchup();
   const pitchMovement = useAnalyticsDataStore((s) => s.pitchMovement);
   const loading = useAnalyticsDataStore((s) => s.loadingPitchMovement);
 

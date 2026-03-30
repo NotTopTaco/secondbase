@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useGameStore } from '../../stores/gameStore';
+import { useReviewStore } from '../../stores/reviewStore';
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
 import { useUmpireStore } from '../../stores/umpireStore';
@@ -13,7 +14,10 @@ import type { OverlayFn } from './useStrikeZone';
 const PANEL_ID = 'strikeZone';
 
 export function StrikeZonePanel() {
-  const pitches = useGameStore((s) => s.pitches);
+  const livePitches = useGameStore((s) => s.pitches);
+  const isReviewMode = useReviewStore((s) => s.isReviewMode);
+  const reviewPitches = useReviewStore((s) => s.reviewPitches);
+  const pitches = isReviewMode ? reviewPitches : livePitches;
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
 

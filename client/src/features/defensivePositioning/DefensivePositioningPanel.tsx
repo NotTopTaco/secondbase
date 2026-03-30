@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { useGameAnalyticsStore } from '../../stores/gameAnalyticsStore';
 import { useMatchupStore } from '../../stores/matchupStore';
 import { Spinner } from '../../components/ui/Spinner';
@@ -28,8 +28,7 @@ const OPTIMAL_OPTIONS = [
 export function DefensivePositioningPanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
-  const batter = useGameStore((s) => s.batter);
-  const pitcher = useGameStore((s) => s.pitcher);
+  const { batter, pitcher } = useActiveMatchup();
   const data = useGameAnalyticsStore((s) => s.defensivePositioning);
   const loading = useGameAnalyticsStore((s) => s.loadingDefensivePositioning);
   const sprayChart = useMatchupStore((s) => s.sprayChart);

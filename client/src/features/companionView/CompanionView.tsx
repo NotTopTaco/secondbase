@@ -4,10 +4,13 @@ import { useGameStore } from '../../stores/gameStore';
 import { usePanelStore } from '../../stores/panelStore';
 import { useGamePolling } from '../../hooks/useGamePolling';
 import { useSchedulePolling } from '../../hooks/useSchedulePolling';
+import { useReviewKeyboard } from '../../hooks/useReviewKeyboard';
 import { GameStateBar } from '../gameStateBar/GameStateBar';
 import { TabBar } from './TabBar';
 import { TabPanelGrid } from './TabPanelGrid';
 import { Sidebar } from './Sidebar';
+import { AtBatStrip } from '../atBatStrip/AtBatStrip';
+import { PitcherDrawer } from '../pitcherDrawer/PitcherDrawer';
 import styles from './CompanionView.module.css';
 
 export function CompanionView() {
@@ -25,11 +28,13 @@ export function CompanionView() {
 
   const { error } = useGamePolling(gamePk);
   useSchedulePolling(gamePk);
+  useReviewKeyboard();
 
   return (
     <div className={styles.view}>
       <GameStateBar />
       <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+      <AtBatStrip />
       {error && (
         <div className={styles.error}>
           <span className={styles.errorDot} />
@@ -42,6 +47,7 @@ export function CompanionView() {
         </div>
         <Sidebar activeGamePk={gamePk} />
       </div>
+      <PitcherDrawer />
       <Link to="/" className={styles.backLink}>
         &larr; Games
       </Link>

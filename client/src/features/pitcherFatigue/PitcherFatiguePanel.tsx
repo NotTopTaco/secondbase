@@ -1,8 +1,9 @@
 import { Panel } from '../../components/ui/Panel';
 import { usePanelStore } from '../../stores/panelStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { useGameAnalyticsStore } from '../../stores/gameAnalyticsStore';
 import { useMatchupStore } from '../../stores/matchupStore';
+import { useReviewStore } from '../../stores/reviewStore';
 import { VelocityChart } from './VelocityChart';
 import { FatigueAlert } from './FatigueAlert';
 import { VelocitySummary } from './VelocitySummary';
@@ -13,8 +14,10 @@ const PANEL_ID = 'pitcherFatigue';
 export function PitcherFatiguePanel() {
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
-  const pitcher = useGameStore((s) => s.pitcher);
-  const pitches = useGameAnalyticsStore((s) => s.currentPitcherAllPitches);
+  const { pitcher, isReviewMode } = useActiveMatchup();
+  const livePitches = useGameAnalyticsStore((s) => s.currentPitcherAllPitches);
+  const reviewPitches = useReviewStore((s) => s.reviewPitcherGamePitches);
+  const pitches = isReviewMode ? reviewPitches : livePitches;
   const tendencies = useMatchupStore((s) => s.tendencies);
 
   const seasonAverages = useMemo(() => {

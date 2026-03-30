@@ -106,9 +106,9 @@ interface LiveFeed {
   };
 }
 
-type PlayEvents = NonNullable<NonNullable<NonNullable<NonNullable<LiveFeed['liveData']>['plays']>['currentPlay']>['playEvents']>;
+export type PlayEvents = NonNullable<NonNullable<NonNullable<NonNullable<LiveFeed['liveData']>['plays']>['currentPlay']>['playEvents']>;
 
-function parsePitches(playEvents: PlayEvents | undefined): PitchEvent[] {
+export function parsePitches(playEvents: PlayEvents | undefined): PitchEvent[] {
   if (!playEvents) return [];
   return playEvents
     .filter((e) => e?.isPitch)

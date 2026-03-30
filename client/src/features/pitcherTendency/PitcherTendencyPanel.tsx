@@ -3,7 +3,7 @@ import { Panel } from '../../components/ui/Panel';
 import { SegmentedControl } from '../../components/ui/SegmentedControl';
 import { Spinner } from '../../components/ui/Spinner';
 import { usePanelStore } from '../../stores/panelStore';
-import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { useMatchupStore, type TendencyEntry } from '../../stores/matchupStore';
 import { PITCH_COLORS, PITCH_LABELS } from '../../theme/colors';
 import { ZoneGrid } from './ZoneGrid';
@@ -51,7 +51,7 @@ export function PitcherTendencyPanel() {
   const [handFilter, setHandFilter] = useState<string>('all');
   const panel = usePanelStore((s) => s.panels.find((p) => p.id === PANEL_ID));
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
-  const pitcher = useGameStore((s) => s.pitcher);
+  const { pitcher } = useActiveMatchup();
   const tendencies = useMatchupStore((s) => s.tendencies);
   const loading = useMatchupStore((s) => s.loadingTendencies);
 

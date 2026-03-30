@@ -1,0 +1,176 @@
+/* ── Overlay backdrop ─────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+/* ── Drawer panel ────────────────────────────────────────── */
+.drawer {
+  position: relative;
+  width: 380px;
+  max-width: 90vw;
+  height: 100%;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 200ms var(--ease-out-expo);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border);
+  background: var(--gradient-bar);
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: var(--space-xs);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--duration-fast), background var(--duration-fast);
+}
+
+.closeBtn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── Pitcher list ────────────────────────────────────────── */
+.pitcherList {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(191, 13, 62, 0.25) transparent;
+}
+
+.pitcherRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  transition: background var(--duration-fast);
+}
+
+.pitcherRow:last-child {
+  border-bottom: none;
+}
+
+.pitcherRow:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pitcherRowActive {
+  background: rgba(74, 158, 255, 0.08);
+  border-left: 2px solid var(--accent);
+}
+
+.pitcherRowCurrent {
+  position: relative;
+}
+
+.currentBadge {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--success);
+  background: rgba(46, 204, 113, 0.12);
+  padding: 1px 4px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pitcherInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.pitcherName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pitcherMeta {
+  display: flex;
+  gap: var(--space-sm);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.pitcherStat {
+  white-space: nowrap;
+}
+
+/* ── Summary area ────────────────────────────────────────── */
+.summaryArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-md);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(191, 13, 62, 0.25) transparent;
+}
+
+.summaryArea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.summaryArea::-webkit-scrollbar-thumb {
+  background: rgba(191, 13, 62, 0.25);
+  border-radius: 4px;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .drawer {
+    width: 100%;
+    max-width: 100%;
+  }
+}

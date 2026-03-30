@@ -1,0 +1,90 @@
+.section {
+  margin-bottom: var(--space-md);
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-sm);
+}
+
+/* ── At-bat log table ────────────────────────────────────── */
+.abLog {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.abRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 4px var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 12px;
+}
+
+.abRow:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.abBatter {
+  color: var(--text-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.abInning {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.abResult {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.resultHit {
+  background: rgba(46, 204, 113, 0.15);
+  color: #2ecc71;
+}
+
+.resultK {
+  background: rgba(96, 96, 112, 0.2);
+  color: var(--text-muted);
+}
+
+.resultBB {
+  background: rgba(74, 158, 255, 0.15);
+  color: var(--accent);
+}
+
+.resultOut {
+  background: rgba(96, 96, 112, 0.12);
+  color: var(--text-muted);
+}
+
+.resultHR {
+  background: rgba(231, 76, 60, 0.18);
+  color: #e74c3c;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  padding: var(--space-md) 0;
+}

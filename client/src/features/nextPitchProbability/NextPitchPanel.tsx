@@ -3,6 +3,7 @@ import { Panel } from '../../components/ui/Panel';
 import { Spinner } from '../../components/ui/Spinner';
 import { usePanelStore } from '../../stores/panelStore';
 import { useGameStore } from '../../stores/gameStore';
+import { useActiveMatchup } from '../../hooks/useActiveMatchup';
 import { usePredictionStore } from '../../stores/predictionStore';
 import { fetchNextPitch } from '../../api/analyticsApi';
 import { ProbabilityList } from './ProbabilityList';
@@ -15,7 +16,7 @@ export function NextPitchPanel() {
   const toggleCollapse = usePanelStore((s) => s.toggleCollapse);
 
   const gamePk = useGameStore((s) => s.gamePk);
-  const pitcher = useGameStore((s) => s.pitcher);
+  const { pitcher } = useActiveMatchup();
   const count = useGameStore((s) => s.count);
   const inningHalf = useGameStore((s) => s.inningHalf);
   const pitches = useGameStore((s) => s.pitches);
